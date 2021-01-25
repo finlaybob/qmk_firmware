@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include <stdio.h>
 
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
@@ -114,7 +113,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 /* ADJUST
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
+ * |      |      |      |      |      |      |                    | RGB |  RGB+ |HUE+  |SAT+  |VAL+  |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * | RESET|      |QWERTY| GAME |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -127,13 +126,100 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'           '------''---------------------------'
  */
   [_ADJUST] = LAYOUT( \
-  XXXXXXX , XXXXXXX,  XXXXXXX ,  XXXXXXX , XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+  XXXXXXX , XXXXXXX,  XXXXXXX ,  XXXXXXX , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, \
   RESET  , XXXXXXX,KC_DEFAULT,KC_GAME,CG_TOGG,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
-  XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX, \
+  _______ , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, _______, \
                    _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______ \
   )
 };
+
+
+
+
+
+// // Light LEDs 6 to 9 and 12 to 15 red when caps lock is active. Hard to ignore!
+// const rgblight_segment_t PROGMEM my_capslock_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {0, 1, HSV_RED}       // Light 2 LEDs, starting with LED 3
+// );
+// // Light LEDs 9 & 10 in cyan when keyboard layer 1 is active
+// const rgblight_segment_t PROGMEM my_layer1_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {2, 2, HSV_PURPLE}
+// );
+// // Light LEDs 11 & 12 in purple when keyboard layer 2 is active
+// const rgblight_segment_t PROGMEM my_layer2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {3, 1, 208, 100, 100}
+// );
+// // Light LEDs 13 & 14 in green when keyboard layer 3 is active
+// const rgblight_segment_t PROGMEM my_layer3_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {3, 1, 32, 100, 100}
+// );
+
+
+
+
+// // Now define the array of layers. Later layers take precedence
+// const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+//     my_capslock_layer,
+//     my_layer2_layer,    // Overrides other layers
+//     my_layer3_layer,     // Overrides other layers
+//     my_layer1_layer    // Overrides caps lock layer
+// );
+
+// void keyboard_post_init_user(void) {
+//     // Enable the LED layers
+//     rgblight_layers = my_rgb_layers;
+// }
+
+
+// bool led_update_user(led_t led_state) {
+//     rgblight_set_layer_state(0, led_state.caps_lock);
+//     return true;
+// }
+
+// layer_state_t default_layer_state_set_user(layer_state_t state) {
+//     rgblight_set_layer_state(1, layer_state_cmp(state, _ADJUST));
+//     return state;
+// }
+
+// layer_state_t layer_state_set_user(layer_state_t state) {
+//     rgblight_set_layer_state(2, layer_state_cmp(state, _LOWER));
+//     rgblight_set_layer_state(3, layer_state_cmp(state, _RAISE));
+//     return state;
+// }
+
+// const rgblight_segment_t PROGMEM _yes_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_GREEN} );
+// const rgblight_segment_t PROGMEM _no_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_RED} );
+
+// const rgblight_segment_t* const PROGMEM _rgb_layers[] =
+//     RGBLIGHT_LAYERS_LIST( _yes_layer, _no_layer );
+
+// void keyboard_post_init_user(void) {
+//     rgblight_layers = _rgb_layers;
+// }
+
+// // Note we user post_process_record_user because we want the state
+// // after the flag has been flipped...
+// void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+//     switch (keycode) {
+//         case DEBUG:
+//             rgblight_blink_layer(debug_enable ? 0 : 1, 500);
+//             break;
+
+//         case NK_TOGG:
+//         case NK_ON:
+//         case NK_OFF:
+//             rgblight_blink_layer(keymap_config.nkro ? 0 : 1, 500);
+//             break;
+//     }
+// }
+
+
+
+
+
+
+
 
 #ifdef OLED_DRIVER_ENABLE
 
@@ -152,28 +238,24 @@ static void render_logo(void) {
 static const char PROGMEM win_logo1[] = {
         142,143,144,145,146,
         174,175,176,177,178,
-        206.207,208,209,210,
-        238,239,240,241,242,0
+        206,207,208,209,210,0
 };
 static const char PROGMEM up_layer[] = {
     147,148,149,150,151,
     179,180,181,182,183,
-    211,212,213,214,215,
-    32,32,32,32,32,0
+    211,212,213,214,215,0
 };
 static const char PROGMEM down_layer[] = {
     152,153,154,155,156,
     184,185,186,187,188,
-    216,217,218,219,220,
-    248,249,250,251,252,0
+    216,217,218,219,220,0
 };
 
 
 static const char PROGMEM adj_layer[] = {
     32,157,158,159,32,
     32,189,190,191,32,
-    32,221,222,223,32,
-    32,253,254,255,10,0
+    32,221,222,223,32,0
 };
 
 
@@ -186,7 +268,8 @@ static void print_status_narrow(void) {
     }
     else
     {
-        oled_write_ln_P(win_logo1, false);
+        //oled_write_ln_P(PSTR(" WIN "), false);
+        oled_write_P(win_logo1, false);
     }
 
     switch (get_highest_layer(default_layer_state)) {
@@ -202,6 +285,7 @@ static void print_status_narrow(void) {
     oled_write_P(PSTR("-----"), false);
     // Print current layer
     oled_write_P(PSTR("Layer"), false);
+    oled_write_P(PSTR("     "), false);
     switch (get_highest_layer(layer_state))
     {
         case _GAME:
@@ -211,17 +295,18 @@ static void print_status_narrow(void) {
             oled_write_P(PSTR("     "), false);
             break;
         case _RAISE:
-            oled_write_ln_P(up_layer, false);
+            oled_write_P(up_layer, false);
             break;
         case _LOWER:
-            oled_write_ln_P(down_layer, false);
+            oled_write_P(down_layer, false);
             break;
         case _ADJUST:
-            oled_write_ln_P(adj_layer, false);
+            oled_write_P(adj_layer, false);
             break;
         default:
             oled_write_P(PSTR("Undef"), false);
     }
+    oled_write_P(PSTR("     "), false);
     oled_write_P(PSTR("-----"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
@@ -415,6 +500,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     return true;
 }
 
+
+
 #ifdef ENCODER_ENABLE
 
 void enc_update_default(uint8_t index, bool cw){
@@ -436,9 +523,9 @@ void enc_update_default(uint8_t index, bool cw){
 void enc_update_shifted(uint8_t index, bool cw){
     if (index == 0) {
         if (cw) {
-            tap_code(C(KC_TAB));
+            tap_code16(C(KC_TAB));
         } else {
-            tap_code(C(S(KC_TAB)));
+            tap_code16(C(S(KC_TAB)));
         }
     } else if (index == 1) {
         if (cw) {
