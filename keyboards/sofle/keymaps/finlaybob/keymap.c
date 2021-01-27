@@ -9,6 +9,12 @@ enum sofle_layers {
     _ADJUST,
 };
 
+enum light_layers{
+    LL_CAPS,
+    LL_LOWER,
+    LL_RAISE,
+    LL_ADJ,
+};
 enum custom_keycodes {
     KC_DEFAULT = SAFE_RANGE,
     KC_GAME,
@@ -17,9 +23,11 @@ enum custom_keycodes {
     KC_ADJUST,
     KC_PRVWD,
     KC_NXTWD,
-    KC_LSTRT,
-    KC_LEND,
-    KC_DLINE
+    KC_DLINE,
+
+    G_STA,
+    G_CHK,
+    G_COM
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -81,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *            | LGUI | LAlt | LCTR |LOWER | /Enter  /       \Space \  |RAISE | RCTR | RAlt | RGUI |
  *            |      |      |      |      |/       /         \      \ |      |      |      |      |
- *            `----------------------------------'           '------''---------------------------'
+ *            `----------------------------------'           '------''---------------------------'@
  */
 [_LOWER] = LAYOUT( \
   _______,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,\
@@ -108,12 +116,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______ , _______ , _______ , _______ , _______,                           _______,  _______  , _______,  _______ ,  _______ ,KC_EQL, \
   _______,  KC_INS,  KC_PSCR,   KC_APP,  XXXXXXX, XXXXXXX,                        KC_PGUP, KC_PRVWD,   KC_UP, KC_NXTWD,KC_DLINE, KC_BSPC, \
   _______, KC_LALT,  KC_LCTL,  KC_LSFT,  XXXXXXX, KC_CAPS,                       KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT,  KC_DEL, KC_BSPC, \
-  _______,KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, XXXXXXX,  _______,       _______,  XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,   XXXXXXX, _______, \
+  _______,KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, XXXXXXX,  _______,       _______,  XXXXXXX, KC_HOME, XXXXXXX, KC_END,   XXXXXXX, _______, \
                          _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______ \
 ),
 /* ADJUST
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    | RGB |  RGB+ |HUE+  |SAT+  |VAL+  |      |
+ * |      | G_STA| G_CHK| G_COM|      |      |                    | RGB |  RGB+ |HUE+  |SAT+  |VAL+  |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * | RESET|      |QWERTY| GAME |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -126,7 +134,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'           '------''---------------------------'
  */
   [_ADJUST] = LAYOUT( \
-  XXXXXXX , XXXXXXX,  XXXXXXX ,  XXXXXXX , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, \
+  XXXXXXX , G_STA,  G_CHK ,  G_COM , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, \
   RESET  , XXXXXXX,KC_DEFAULT,KC_GAME,CG_TOGG,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
   _______ , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, _______, \
@@ -138,55 +146,57 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 
-// // Light LEDs 6 to 9 and 12 to 15 red when caps lock is active. Hard to ignore!
-// const rgblight_segment_t PROGMEM my_capslock_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-//     {0, 1, HSV_RED}       // Light 2 LEDs, starting with LED 3
-// );
-// // Light LEDs 9 & 10 in cyan when keyboard layer 1 is active
-// const rgblight_segment_t PROGMEM my_layer1_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-//     {2, 2, HSV_PURPLE}
-// );
-// // Light LEDs 11 & 12 in purple when keyboard layer 2 is active
-// const rgblight_segment_t PROGMEM my_layer2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-//     {3, 1, 208, 100, 100}
-// );
-// // Light LEDs 13 & 14 in green when keyboard layer 3 is active
-// const rgblight_segment_t PROGMEM my_layer3_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-//     {3, 1, 32, 100, 100}
-// );
+const rgblight_segment_t PROGMEM BL_caps[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, 1, HSV_RED}       // Light 1 LEDs, starting with LED 0
+);
+
+const rgblight_segment_t PROGMEM BL_adj[] = RGBLIGHT_LAYER_SEGMENTS(
+    {3, 1, HSV_PURPLE}
+);
+
+const rgblight_segment_t PROGMEM BL_raise[] = RGBLIGHT_LAYER_SEGMENTS(
+    {3, 1, 12,255,255}
+);
+
+const rgblight_segment_t PROGMEM BL_lower[] = RGBLIGHT_LAYER_SEGMENTS(
+    {3, 1, HSV_GREEN}
+);
 
 
 
 
-// // Now define the array of layers. Later layers take precedence
-// const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
-//     my_capslock_layer,
-//     my_layer2_layer,    // Overrides other layers
-//     my_layer3_layer,     // Overrides other layers
-//     my_layer1_layer    // Overrides caps lock layer
-// );
+// Now define the array of layers. Later layers take precedence
+const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+    BL_caps,
+    BL_lower,     // Overrides other layers
+    BL_raise,    // Overrides caps lock layer
+    BL_adj    // Overrides other layers
+);
 
-// void keyboard_post_init_user(void) {
-//     // Enable the LED layers
-//     rgblight_layers = my_rgb_layers;
-// }
+void keyboard_post_init_user(void) {
+    // Enable the LED layers
+    rgblight_layers = my_rgb_layers;
+}
 
 
-// bool led_update_user(led_t led_state) {
-//     rgblight_set_layer_state(0, led_state.caps_lock);
-//     return true;
-// }
+bool led_update_user(led_t led_state) {
+    rgblight_set_layer_state(LL_CAPS, led_state.caps_lock);
+    return true;
+}
 
-// layer_state_t default_layer_state_set_user(layer_state_t state) {
-//     rgblight_set_layer_state(1, layer_state_cmp(state, _ADJUST));
-//     return state;
-// }
 
-// layer_state_t layer_state_set_user(layer_state_t state) {
-//     rgblight_set_layer_state(2, layer_state_cmp(state, _LOWER));
-//     rgblight_set_layer_state(3, layer_state_cmp(state, _RAISE));
-//     return state;
-// }
+layer_state_t layer_state_set_user(layer_state_t state) {
+    bool b = layer_state_cmp(state, _ADJUST);
+    rgblight_set_layer_state(LL_ADJ, b);
+
+    if(b) {
+        return state;
+    };
+
+    rgblight_set_layer_state(LL_LOWER, layer_state_cmp(state, _LOWER));
+    rgblight_set_layer_state(LL_RAISE, layer_state_cmp(state, _RAISE));
+    return state;
+}
 
 // const rgblight_segment_t PROGMEM _yes_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_GREEN} );
 // const rgblight_segment_t PROGMEM _no_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_RED} );
@@ -235,11 +245,6 @@ static void render_logo(void) {
     oled_write_P(qmk_logo, false);
 }
 
-static const char PROGMEM win_logo1[] = {
-        142,143,144,145,146,
-        174,175,176,177,178,
-        206,207,208,209,210,0
-};
 static const char PROGMEM up_layer[] = {
     147,148,149,150,151,
     179,180,181,182,183,
@@ -260,17 +265,6 @@ static const char PROGMEM adj_layer[] = {
 
 
 static void print_status_narrow(void) {
-    // Print current mode
-
-    if (keymap_config.swap_lctl_lgui)
-    {
-        oled_write_ln_P(PSTR("MACOS"), false);
-    }
-    else
-    {
-        //oled_write_ln_P(PSTR(" WIN "), false);
-        oled_write_P(win_logo1, false);
-    }
 
     switch (get_highest_layer(default_layer_state)) {
         case _DEFAULT:
@@ -341,6 +335,29 @@ void oled_task_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
     switch (keycode) {
+
+        case G_STA:
+        if (record->event.pressed)
+        {
+            SEND_STRING("git status --short" SS_TAP(X_ENTER));
+        }
+        break;
+
+        case G_CHK:
+        if (record->event.pressed)
+        {
+            SEND_STRING("git checkout ");
+        }
+        break;
+
+        case G_COM:
+        if (record->event.pressed)
+        {
+            SEND_STRING("git commit" SS_TAP(X_ENTER));
+        }
+        break;
+
+
         case KC_DEFAULT:
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_DEFAULT);
@@ -378,76 +395,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
             return false;
         case KC_PRVWD:
             if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    register_mods(mod_config(MOD_LALT));
-                    register_code(KC_LEFT);
-                } else {
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_LEFT);
-                }
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_LEFT);
             } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LALT));
-                    unregister_code(KC_LEFT);
-                } else {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_LEFT);
-                }
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_LEFT);
             }
             break;
         case KC_NXTWD:
              if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    register_mods(mod_config(MOD_LALT));
-                    register_code(KC_RIGHT);
-                } else {
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_RIGHT);
-                }
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_RIGHT);
+
             } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LALT));
-                    unregister_code(KC_RIGHT);
-                } else {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_RIGHT);
-                }
-            }
-            break;
-        case KC_LSTRT:
-            if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                     //CMD-arrow on Mac, but we have CTL and GUI swapped
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_LEFT);
-                } else {
-                    register_code(KC_HOME);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_LEFT);
-                } else {
-                    unregister_code(KC_HOME);
-                }
-            }
-            break;
-        case KC_LEND:
-            if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    //CMD-arrow on Mac, but we have CTL and GUI swapped
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_RIGHT);
-                } else {
-                    register_code(KC_END);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_RIGHT);
-                } else {
-                    unregister_code(KC_END);
-                }
+
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_RIGHT);
+
             }
             break;
         case KC_DLINE:
