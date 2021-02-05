@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include <stdio.h>
 
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
@@ -28,6 +29,10 @@ enum custom_keycodes {
     G_STA,
     G_CHK,
     G_COM
+};
+
+enum RGB_EDIT_MODE {
+    REM_MODE
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -125,8 +130,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * | RESET|      |QWERTY| GAME |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |MACWIN|      |      |      |-------.    ,-------|      | VOLDO| MUTE | VOLUP|      |      |
- * |------+------+------+------+------+------|  MUTE |    |       |------+------+------+------+------+------|
+ * |      |      |      |      |      |      |-------.    ,-------|      | VOLDO| MUTE | VOLUP|      |      |
+ * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * |      |      |      |      |      |      |-------|    |-------|      | PREV | PLAY | NEXT |      |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *            | LGUI | LAlt | LCTR |LOWER | /Enter  /       \Space \  |RAISE | RCTR | RAlt | RGUI |
@@ -135,16 +140,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
   [_ADJUST] = LAYOUT( \
   XXXXXXX , G_STA,  G_CHK ,  G_COM , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, \
-  RESET  , XXXXXXX,KC_DEFAULT,KC_GAME,CG_TOGG,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-  XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
+  RESET  , XXXXXXX,KC_DEFAULT,KC_GAME,XXXXXXX,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+  XXXXXXX , XXXXXXX,XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
   _______ , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, _______, \
                    _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______ \
   )
 };
-
-
-
-
 
 const rgblight_segment_t PROGMEM BL_caps[] = RGBLIGHT_LAYER_SEGMENTS(
     {0, 1, HSV_RED}       // Light 1 LEDs, starting with LED 0
@@ -155,7 +156,7 @@ const rgblight_segment_t PROGMEM BL_adj[] = RGBLIGHT_LAYER_SEGMENTS(
 );
 
 const rgblight_segment_t PROGMEM BL_raise[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 1, 12,255,255}
+    {3, 1, 8,255,255}
 );
 
 const rgblight_segment_t PROGMEM BL_lower[] = RGBLIGHT_LAYER_SEGMENTS(
@@ -226,45 +227,39 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 
 
-
-
-
-
-
 #ifdef OLED_DRIVER_ENABLE
 
+// static void render_logo(void) {
+//     static const char PROGMEM qmk_logo[] = {
+//         0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 10,
+//         0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 10,
+//         0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0x00
+//     };
+
+//     oled_write_P(qmk_logo, false);
+// }
+// Images in font
+
+// static const char PROGMEM up_layer[] = {
+//     147,148,149,150,151,
+//     179,180,181,182,183,
+//     211,212,213,214,215,0
+// };
+// static const char PROGMEM down_layer[] = {
+//     152,153,154,155,156,
+//     184,185,186,187,188,
+//     216,217,218,219,220,0
+// };
 
 
-static void render_logo(void) {
-    static const char PROGMEM qmk_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 10,
-        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 10,
-        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0x00
-    };
-
-    oled_write_P(qmk_logo, false);
-}
-
-static const char PROGMEM up_layer[] = {
-    147,148,149,150,151,
-    179,180,181,182,183,
-    211,212,213,214,215,0
-};
-static const char PROGMEM down_layer[] = {
-    152,153,154,155,156,
-    184,185,186,187,188,
-    216,217,218,219,220,0
-};
+// static const char PROGMEM adj_layer[] = {
+//     32,157,158,159,32,
+//     32,189,190,191,32,
+//     32,221,222,223,32,0
+// };
 
 
-static const char PROGMEM adj_layer[] = {
-    32,157,158,159,32,
-    32,189,190,191,32,
-    32,221,222,223,32,0
-};
-
-
-static void print_status_narrow(void) {
+static void print_status_primary(void) {
 
     switch (get_highest_layer(default_layer_state)) {
         case _DEFAULT:
@@ -284,18 +279,16 @@ static void print_status_narrow(void) {
     {
         case _GAME:
         case _DEFAULT:
-            oled_write_P(PSTR("     "), false);
             oled_write_P(PSTR(" Def "), false);
-            oled_write_P(PSTR("     "), false);
             break;
         case _RAISE:
-            oled_write_P(up_layer, false);
+            oled_write_P(PSTR("Raise"), false);
             break;
         case _LOWER:
-            oled_write_P(down_layer, false);
+            oled_write_P(PSTR("Lower"), false);
             break;
         case _ADJUST:
-            oled_write_P(adj_layer, false);
+            oled_write_P(PSTR(" Adj "), false);
             break;
         default:
             oled_write_P(PSTR("Undef"), false);
@@ -304,29 +297,39 @@ static void print_status_narrow(void) {
     oled_write_P(PSTR("-----"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
+    oled_write_P(PSTR(" NUM "), led_usb_state.num_lock);
     oled_write_P(PSTR(" CAP "), led_usb_state.caps_lock);
+    oled_write_P(PSTR(" SCR "), led_usb_state.scroll_lock);
     oled_write_P(PSTR("\n"), false);
 
 }
 
+static void print_status_secondary(void) {
+
+
+    oled_write_P(PSTR(" WPM "), false);
+    static char str[6];
+    sprintf(str," %03u ",get_current_wpm());
+
+    oled_write(str, false);
+
+
+}
+
+
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-
-
-    if (is_keyboard_master()) {
-        return OLED_ROTATION_270;
-    }
-    return rotation;
+    //Rotate both sides
+    return OLED_ROTATION_270;
 }
 
 void oled_task_user(void) {
     if (is_keyboard_master())
     {
-        print_status_narrow();
+        print_status_primary();
     }
     else
     {
-        render_logo();
-        oled_scroll_right();
+        print_status_secondary();
     }
 }
 
@@ -484,7 +487,39 @@ void enc_update_default(uint8_t index, bool cw){
     }
 }
 
-void enc_update_shifted(uint8_t index, bool cw){
+void enc_update_raised(uint8_t index, bool cw){
+    if (index == 0) {
+        if (cw) {
+            tap_code16(C(KC_TAB));
+        } else {
+            tap_code16(C(S(KC_TAB)));
+        }
+    } else if (index == 1) {
+        if (cw) {
+            tap_code(KC_RIGHT);
+        } else {
+            tap_code(KC_LEFT);
+
+        }
+    }
+}
+void enc_update_lowered(uint8_t index, bool cw){
+    if (index == 0) {
+        if (cw) {
+            tap_code16(C(KC_TAB));
+        } else {
+            tap_code16(C(S(KC_TAB)));
+        }
+    } else if (index == 1) {
+        if (cw) {
+            tap_code(KC_RIGHT);
+        } else {
+            tap_code(KC_LEFT);
+
+        }
+    }
+}
+void enc_update_adjust(uint8_t index, bool cw){
     if (index == 0) {
         if (cw) {
             tap_code16(C(KC_TAB));
@@ -503,14 +538,16 @@ void enc_update_shifted(uint8_t index, bool cw){
 
 void encoder_update_user(uint8_t index, bool clockwise)
 {
-
-    //bool isShifted = get_mods() & MOD_MASK_CTRL;
-
     switch (get_highest_layer(layer_state))
     {
+        case _ADJUST:
+            enc_update_adjust(index,clockwise);
+            break;
         case _RAISE:
+            enc_update_raised(index,clockwise);
+            break;
         case _LOWER:
-            enc_update_shifted(index,clockwise);
+            enc_update_lowered(index,clockwise);
             break;
         default:
             enc_update_default(index,clockwise);
