@@ -1,5 +1,8 @@
 #include QMK_KEYBOARD_H
+
+#ifdef OLED_DRIVER_ENABLE
 #include <stdio.h>
+#endif
 
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
@@ -10,12 +13,7 @@ enum sofle_layers {
     _ADJUST,
 };
 
-enum light_layers{
-    LL_CAPS,
-    LL_LOWER,
-    LL_RAISE,
-    LL_ADJ,
-};
+
 enum custom_keycodes {
     KC_DEFAULT = SAFE_RANGE,
     KC_GAME,
@@ -28,12 +26,35 @@ enum custom_keycodes {
 
     G_STA,
     G_CHK,
-    G_COM
+    G_COM,
+
+    REM_BUTTON,
+    ALT_TAB,
+    CTRL_TAB,
+    PT_RUN
 };
 
-enum RGB_EDIT_MODE {
-    REM_MODE
+enum light_layers{
+    LL_CAPS,
+    LL_LOWER,
+    LL_RAISE,
+    LL_ADJ,
 };
+enum RGB_EDIT_MODE {
+    REM_MODE,
+    REM_HUE,
+    REM_SAT,
+    REM_VAL
+};
+
+
+static uint8_t current_rem_mode = REM_MODE;
+
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
+
+bool is_ctrl_tab_active = false;
+uint16_t ctrl_tab_timer = 0;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
@@ -56,7 +77,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  KC_MINS, \
   KC_ESC,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,  KC_BSPC, \
   KC_TAB,   KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN,  KC_QUOT, \
-  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MPLY,     XXXXXXX,KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT, \
+  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MPLY,     REM_BUTTON,KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT, \
                  KC_LGUI,KC_LALT,KC_LCTRL, KC_LOWER, KC_ENT,      KC_SPC,  KC_RAISE, KC_RCTRL, KC_RALT, KC_RGUI \
 ),
 /*
@@ -76,15 +97,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 
 [_GAME] = LAYOUT( \
-  KC_GRV,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  KC_MINS, \
+  KC_GRV,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,   KC_8,    KC_9,    KC_0,  KC_MINS, \
   KC_ESC,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,  KC_BSPC, \
   KC_TAB,   KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN,  KC_QUOT, \
-  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MPLY,     XXXXXXX,KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT, \
+  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MPLY,     REM_BUTTON,KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT, \
                  KC_LGUI,KC_LALT,KC_LCTRL,KC_LOWER, KC_SPC,      KC_ENT,  KC_RAISE, KC_RCTRL, KC_RALT, KC_RGUI \
 ),
 /* LOWER
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |  F1  |  F2  |  F3  |  F4  |  F5  |                    |  F6  |  F7  |  F8  |  F9  | F10  | F11  |
+ * |KC_DEL|  F1  |  F2  |  F3  |  F4  |  F5  |                    |  F6  |  F7  |  F8  |  F9  | F10  | F11  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |  `   |   1  |   2  |   3  |   4  |   5  |                    |   6  |   7  |   8  |   9  |   0  | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -97,10 +118,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'           '------''---------------------------'@
  */
 [_LOWER] = LAYOUT( \
-  _______,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,\
+  KC_DEL,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,\
   KC_GRV,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  KC_F12, \
   _______, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                       KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PIPE, \
-  _______,  KC_EQL, KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, _______,       _______, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS, _______, \
+  _______,  KC_EQL, KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, KC_F12,       _______, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS, _______, \
                        _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______\
 ),
 /* RAISE
@@ -119,7 +140,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_RAISE] = LAYOUT( \
   _______, _______ , _______ , _______ , _______ , _______,                           _______,  _______  , _______,  _______ ,  _______ ,KC_EQL, \
-  _______,  KC_INS,  KC_PSCR,   KC_APP,  XXXXXXX, XXXXXXX,                        KC_PGUP, KC_PRVWD,   KC_UP, KC_NXTWD,KC_DLINE, KC_BSPC, \
+  _______,  KC_INS,  KC_PSCR,   KC_APP,  PT_RUN, KC_F14,                        KC_PGUP, KC_PRVWD,   KC_UP, KC_NXTWD,KC_DLINE, KC_BSPC, \
   _______, KC_LALT,  KC_LCTL,  KC_LSFT,  XXXXXXX, KC_CAPS,                       KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT,  KC_DEL, KC_BSPC, \
   _______,KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, XXXXXXX,  _______,       _______,  XXXXXXX, KC_HOME, XXXXXXX, KC_END,   XXXXXXX, _______, \
                          _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______ \
@@ -139,8 +160,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'           '------''---------------------------'
  */
   [_ADJUST] = LAYOUT( \
-  XXXXXXX , G_STA,  G_CHK ,  G_COM , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, \
-  RESET  , XXXXXXX,KC_DEFAULT,KC_GAME,XXXXXXX,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+  XXXXXXX , G_STA,  G_CHK ,    G_COM , XXXXXXX, XXXXXXX,                     RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, REM_BUTTON, \
+  RESET   , XXXXXXX,KC_DEFAULT,KC_GAME,XXXXXXX,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX , XXXXXXX,XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
   _______ , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, _______, \
                    _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______ \
@@ -152,30 +173,28 @@ const rgblight_segment_t PROGMEM BL_caps[] = RGBLIGHT_LAYER_SEGMENTS(
 );
 
 const rgblight_segment_t PROGMEM BL_adj[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 1, HSV_PURPLE}
+    {3, 2, HSV_PURPLE}
 );
 
 const rgblight_segment_t PROGMEM BL_raise[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 1, 8,255,255}
+    {3, 2, 4,255,255}
 );
 
 const rgblight_segment_t PROGMEM BL_lower[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 1, HSV_GREEN}
+    {3, 2, HSV_GREEN}
 );
 
 
+#ifdef RGBLIGHT_LAYERS
 
-
-// Now define the array of layers. Later layers take precedence
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     BL_caps,
-    BL_lower,     // Overrides other layers
-    BL_raise,    // Overrides caps lock layer
-    BL_adj    // Overrides other layers
+    BL_lower,
+    BL_raise,
+    BL_adj
 );
 
 void keyboard_post_init_user(void) {
-    // Enable the LED layers
     rgblight_layers = my_rgb_layers;
 }
 
@@ -198,83 +217,54 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     rgblight_set_layer_state(LL_RAISE, layer_state_cmp(state, _RAISE));
     return state;
 }
-
-// const rgblight_segment_t PROGMEM _yes_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_GREEN} );
-// const rgblight_segment_t PROGMEM _no_layer[] = RGBLIGHT_LAYER_SEGMENTS( {9, 6, HSV_RED} );
-
-// const rgblight_segment_t* const PROGMEM _rgb_layers[] =
-//     RGBLIGHT_LAYERS_LIST( _yes_layer, _no_layer );
-
-// void keyboard_post_init_user(void) {
-//     rgblight_layers = _rgb_layers;
-// }
-
-// // Note we user post_process_record_user because we want the state
-// // after the flag has been flipped...
-// void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-//     switch (keycode) {
-//         case DEBUG:
-//             rgblight_blink_layer(debug_enable ? 0 : 1, 500);
-//             break;
-
-//         case NK_TOGG:
-//         case NK_ON:
-//         case NK_OFF:
-//             rgblight_blink_layer(keymap_config.nkro ? 0 : 1, 500);
-//             break;
-//     }
-// }
-
-
+#endif
 
 #ifdef OLED_DRIVER_ENABLE
+static void write_rgb_edit_mode(void){
 
-// static void render_logo(void) {
-//     static const char PROGMEM qmk_logo[] = {
-//         0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 10,
-//         0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 10,
-//         0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0x00
-//     };
-
-//     oled_write_P(qmk_logo, false);
-// }
-// Images in font
-
-// static const char PROGMEM up_layer[] = {
-//     147,148,149,150,151,
-//     179,180,181,182,183,
-//     211,212,213,214,215,0
-// };
-// static const char PROGMEM down_layer[] = {
-//     152,153,154,155,156,
-//     184,185,186,187,188,
-//     216,217,218,219,220,0
-// };
-
-
-// static const char PROGMEM adj_layer[] = {
-//     32,157,158,159,32,
-//     32,189,190,191,32,
-//     32,221,222,223,32,0
-// };
-
-
-static void print_status_primary(void) {
-
-    switch (get_highest_layer(default_layer_state)) {
-        case _DEFAULT:
-            oled_write_ln_P(PSTR("Norml"), false);
-            break;
-        case _GAME:
-            oled_write_ln_P(PSTR("Games"), false);
-            break;
-        default:
-            oled_write_P(PSTR("Undef"), false);
-    }
     oled_write_P(PSTR("-----"), false);
-    // Print current layer
-    oled_write_P(PSTR("Layer"), false);
-    oled_write_P(PSTR("     "), false);
+    oled_write_P(PSTR(" RGB "), false);
+    switch (current_rem_mode)
+    {
+    case REM_MODE:
+        oled_write_P(PSTR(" MOD "), false);
+        break;
+    case REM_HUE:
+        oled_write_P(PSTR(" HUE "), false);
+        break;
+    case REM_SAT:
+        oled_write_P(PSTR(" SAT "), false);
+        break;
+    case REM_VAL:
+        oled_write_P(PSTR(" VAL "), false);
+        break;
+
+    default:
+        break;
+    }
+}
+
+
+static void write_wpm(void) {
+    oled_write_P(PSTR("-----"), false);
+    oled_write_P(PSTR(" WPM "), false);
+    static char str[6];
+    sprintf(str," %03u ",get_current_wpm());
+    oled_write(str, false);
+}
+
+static void write_lock_state(void){
+
+    oled_write_P(PSTR("-----"), false);
+    led_t led_usb_state = host_keyboard_led_state();
+    oled_write_P(PSTR(" NUM "), led_usb_state.num_lock);
+    oled_write_P(PSTR(" CAP "), led_usb_state.caps_lock);
+    oled_write_P(PSTR(" SCR "), led_usb_state.scroll_lock);
+}
+
+static void write_layer_state(void){
+
+    oled_write_P(PSTR("-----"), false);
     switch (get_highest_layer(layer_state))
     {
         case _GAME:
@@ -293,28 +283,40 @@ static void print_status_primary(void) {
         default:
             oled_write_P(PSTR("Undef"), false);
     }
-    oled_write_P(PSTR("     "), false);
-    oled_write_P(PSTR("-----"), false);
-
-    led_t led_usb_state = host_keyboard_led_state();
-    oled_write_P(PSTR(" NUM "), led_usb_state.num_lock);
-    oled_write_P(PSTR(" CAP "), led_usb_state.caps_lock);
-    oled_write_P(PSTR(" SCR "), led_usb_state.scroll_lock);
-    oled_write_P(PSTR("\n"), false);
 
 }
 
-static void print_status_secondary(void) {
+static void write_layer_mode_state(void){
 
+    switch (get_highest_layer(default_layer_state)) {
+        case _DEFAULT:
+            oled_write_P(PSTR("Norm "), false);
+            break;
+        case _GAME:
+            oled_write_P(PSTR("Game "), true);
+            break;
+        default:
+            oled_write_P(PSTR("Undef"), false);
+    }
+}
 
-    oled_write_P(PSTR(" WPM "), false);
-    static char str[6];
-    sprintf(str," %03u ",get_current_wpm());
+static void print_status_primary(void) {
 
-    oled_write(str, false);
+    write_layer_mode_state();
 
+    write_layer_state();
+
+    write_lock_state();
+
+    write_wpm();
+
+    write_rgb_edit_mode();
 
 }
+
+
+
+
 
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
@@ -323,14 +325,8 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 
 void oled_task_user(void) {
-    if (is_keyboard_master())
-    {
-        print_status_primary();
-    }
-    else
-    {
-        print_status_secondary();
-    }
+    //if (is_keyboard_master())
+    print_status_primary();
 }
 
 #endif
@@ -338,6 +334,25 @@ void oled_task_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
     switch (keycode) {
+
+
+        case PT_RUN:
+        if(record->event.pressed){
+            if (record->event.pressed) {
+                tap_code16(A(KC_F13));
+            }
+        }
+        break;
+        case REM_BUTTON:
+        if(record->event.pressed){
+            if(current_rem_mode==REM_VAL){
+                current_rem_mode=REM_MODE;
+            }else{
+                current_rem_mode++;
+            }
+        }
+        break;
+
 
         case G_STA:
         if (record->event.pressed)
@@ -406,7 +421,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
             }
             break;
         case KC_NXTWD:
-             if (record->event.pressed) {
+            if (record->event.pressed) {
                 register_mods(mod_config(MOD_LCTL));
                 register_code(KC_RIGHT);
 
@@ -471,14 +486,88 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
 #ifdef ENCODER_ENABLE
 
+enum encoder_side {LEFT,RIGHT};
+
+void encoder_rgb_edit_tap(bool cw){
+
+    switch (current_rem_mode)
+    {
+    case REM_MODE:
+        if(cw){
+            rgblight_step();
+        } else {
+            rgblight_step_reverse();
+        }
+        break;
+    case REM_HUE:
+        if(cw){
+            rgblight_increase_hue();
+        } else {
+            rgblight_decrease_hue();
+        }
+        break;
+    case REM_SAT:
+        if(cw){
+            rgblight_increase_sat();
+        } else {
+            rgblight_decrease_sat();
+        }
+        break;
+    case REM_VAL:
+        if(cw){
+            rgblight_increase_val();
+        } else {
+            rgblight_decrease_val();
+        }
+        break;
+
+    default:
+        break;
+    }
+
+}
+
+void encoder_update_super_alttab(bool cw){
+
+    if (!is_alt_tab_active) {
+        is_alt_tab_active = true;
+        register_code(KC_LALT);
+    }
+
+    if (cw) {
+        alt_tab_timer = timer_read();
+        tap_code16(KC_TAB);
+    } else {
+        alt_tab_timer = timer_read();
+        tap_code16(S(KC_TAB));
+    }
+
+}
+
+
+void encoder_update_super_ctrltab(bool cw){
+    if (!is_ctrl_tab_active) {
+        is_ctrl_tab_active = true;
+        register_code(KC_LCTL);
+    }
+
+    if (cw) {
+        ctrl_tab_timer = timer_read();
+        tap_code16(KC_TAB);
+    } else {
+        ctrl_tab_timer = timer_read();
+        tap_code16(S(KC_TAB));
+    }
+}
+
 void enc_update_default(uint8_t index, bool cw){
-    if (index == 0) {
+    if (index == LEFT) {
         if (cw) {
             tap_code(KC_VOLU);
-        } else {
+    } else {
             tap_code(KC_VOLD);
         }
-    } else if (index == 1) {
+    } else if (index == RIGHT) {
         if (cw) {
             tap_code(KC_DOWN);
         } else {
@@ -488,13 +577,12 @@ void enc_update_default(uint8_t index, bool cw){
 }
 
 void enc_update_raised(uint8_t index, bool cw){
-    if (index == 0) {
-        if (cw) {
-            tap_code16(C(KC_TAB));
-        } else {
-            tap_code16(C(S(KC_TAB)));
-        }
-    } else if (index == 1) {
+
+    if (index == LEFT) {
+
+        encoder_update_super_ctrltab(cw);
+
+    } else if (index == RIGHT) {
         if (cw) {
             tap_code(KC_RIGHT);
         } else {
@@ -503,37 +591,18 @@ void enc_update_raised(uint8_t index, bool cw){
         }
     }
 }
+
 void enc_update_lowered(uint8_t index, bool cw){
-    if (index == 0) {
-        if (cw) {
-            tap_code16(C(KC_TAB));
-        } else {
-            tap_code16(C(S(KC_TAB)));
-        }
-    } else if (index == 1) {
-        if (cw) {
-            tap_code(KC_RIGHT);
-        } else {
-            tap_code(KC_LEFT);
 
-        }
+    if (index == LEFT) {
+        encoder_rgb_edit_tap(cw);
+    } else if (index == RIGHT) {
+        encoder_update_super_alttab(cw);
     }
 }
-void enc_update_adjust(uint8_t index, bool cw){
-    if (index == 0) {
-        if (cw) {
-            tap_code16(C(KC_TAB));
-        } else {
-            tap_code16(C(S(KC_TAB)));
-        }
-    } else if (index == 1) {
-        if (cw) {
-            tap_code(KC_RIGHT);
-        } else {
-            tap_code(KC_LEFT);
 
-        }
-    }
+void enc_update_adjust(uint8_t index, bool cw){
+    return;
 }
 
 void encoder_update_user(uint8_t index, bool clockwise)
@@ -552,9 +621,21 @@ void encoder_update_user(uint8_t index, bool clockwise)
         default:
             enc_update_default(index,clockwise);
     }
-
-
-
 }
 
 #endif
+
+void matrix_scan_user(void) {
+    if (is_alt_tab_active) {
+        if (timer_elapsed(alt_tab_timer) > 1000) {
+            unregister_code(KC_LALT);
+            is_alt_tab_active = false;
+        }
+    }
+    if (is_ctrl_tab_active) {
+        if (timer_elapsed(ctrl_tab_timer) > 1000) {
+            unregister_code(KC_LCTL);
+            is_ctrl_tab_active = false;
+        }
+    }
+}
