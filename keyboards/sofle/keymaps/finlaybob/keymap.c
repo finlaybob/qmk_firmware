@@ -31,7 +31,8 @@ enum custom_keycodes {
     REM_BUTTON,
     ALT_TAB,
     CTRL_TAB,
-    PT_RUN
+    PT_RUN,
+
 };
 
 enum light_layers{
@@ -55,6 +56,12 @@ uint16_t alt_tab_timer = 0;
 
 bool is_ctrl_tab_active = false;
 uint16_t ctrl_tab_timer = 0;
+
+
+#ifdef WPM_ENABLE
+uint16_t wpm_graph_timer = 0;
+#endif
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
@@ -220,6 +227,94 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 #endif
 
 #ifdef OLED_DRIVER_ENABLE
+
+static void render_wpm_graph(void) {
+    static uint8_t zero_bar_count = 0;
+    static uint8_t bar_count = 0;
+    uint8_t bar_height = 0;
+    uint8_t bar_segment = 0;
+
+    if (wpm_graph_timer == 0) {
+	wpm_graph_timer = timer_read();
+	return;
+    }
+    if(timer_elapsed(wpm_graph_timer) > 500) {
+	wpm_graph_timer = timer_read();
+
+	if(OLED_DISPLAY_HEIGHT == 64)
+		bar_height = get_current_wpm() / 2;
+	if(OLED_DISPLAY_HEIGHT == 32)
+		bar_height = get_current_wpm() / 4;
+	if(bar_height > OLED_DISPLAY_HEIGHT)
+		bar_height = OLED_DISPLAY_HEIGHT;
+
+	if(bar_height == 0) {
+	    // keep track of how many zero bars we have drawn.  If
+	    // there is a whole screen worth, turn the display off and
+	    // wait until there is something to do
+	    if (zero_bar_count > OLED_DISPLAY_WIDTH) {
+		oled_off();
+		return;
+	    }
+	    zero_bar_count++;
+	} else
+	    zero_bar_count=0;
+
+	oled_pan(false);
+	bar_count++;
+	for (uint8_t i = (OLED_DISPLAY_HEIGHT / 8); i > 0; i--) {
+	    if (bar_height > 7) {
+		if (i % 2 == 1 && bar_count % 3 == 0)
+		    bar_segment = 254;
+		else
+		    bar_segment = 255;
+		bar_height -= 8;
+	    } else {
+		switch (bar_height) {
+		    case 0:
+			bar_segment = 0;
+			break;
+
+		    case 1:
+			bar_segment = 128;
+			break;
+
+		    case 2:
+			bar_segment = 192;
+			break;
+
+		    case 3:
+			bar_segment = 224;
+			break;
+
+		    case 4:
+			bar_segment = 240;
+			break;
+
+		    case 5:
+			bar_segment = 248;
+			break;
+
+		    case 6:
+			bar_segment = 252;
+			break;
+
+		    case 7:
+			bar_segment = 254;
+			break;
+		}
+		bar_height = 0;
+
+		if (i % 2 == 1 && bar_count % 3 == 0)
+		    bar_segment++;
+	    }
+	    oled_write_raw_byte(bar_segment, (i-1) * OLED_DISPLAY_WIDTH);
+	}
+    }
+}
+
+
+
 static void write_rgb_edit_mode(void){
 
     oled_write_P(PSTR("-----"), false);
@@ -320,13 +415,20 @@ static void print_status_primary(void) {
 
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    //Rotate both sides
-    return OLED_ROTATION_270;
+    if (!is_keyboard_master()){
+        return rotation;
+    }else{
+        return OLED_ROTATION_270;
+    }
 }
 
 void oled_task_user(void) {
-    //if (is_keyboard_master())
-    print_status_primary();
+    if (is_keyboard_master()){
+        print_status_primary();
+    }else{
+        render_wpm_graph();
+    }
+
 }
 
 #endif
@@ -479,6 +581,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
             }
             return false;
     }
+
     return true;
 }
 
