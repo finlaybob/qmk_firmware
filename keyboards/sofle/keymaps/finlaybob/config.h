@@ -22,4 +22,3 @@ for more options.
 #define RGBLIGHT_MAX_LAYERS 4
 #define RGBLIGHT_LAYERS_OVERRIDE_RGB_OFF
 
-//#define OLED_UPDATE_INTERVAL 50

@@ -228,6 +228,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef OLED_DRIVER_ENABLE
 
+
+static uint8_t wpm_graph_interval = 250;
+
 static void render_wpm_graph(void) {
     static uint8_t zero_bar_count = 0;
     static uint8_t bar_count = 0;
@@ -238,7 +241,7 @@ static void render_wpm_graph(void) {
 	wpm_graph_timer = timer_read();
 	return;
     }
-    if(timer_elapsed(wpm_graph_timer) > 100) {
+    if(timer_elapsed(wpm_graph_timer) > wpm_graph_interval) {
         wpm_graph_timer = timer_read();
 
         if(OLED_DISPLAY_HEIGHT == 64)
