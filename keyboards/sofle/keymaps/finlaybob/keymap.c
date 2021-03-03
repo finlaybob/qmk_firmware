@@ -1,5 +1,7 @@
 #include QMK_KEYBOARD_H
 
+#include "config.h"
+
 #ifdef OLED_DRIVER_ENABLE
 #include <stdio.h>
 #endif
@@ -42,14 +44,13 @@ enum light_layers{
     LL_ADJ,
 };
 enum RGB_EDIT_MODE {
-    REM_MODE,
     REM_HUE,
     REM_SAT,
     REM_VAL
 };
 
 
-static uint8_t current_rem_mode = REM_MODE;
+static uint8_t current_rem_mode = REM_HUE;
 
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
@@ -175,56 +176,57 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-const rgblight_segment_t PROGMEM BL_caps[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 1, HSV_RED}       // Light 1 LEDs, starting with LED 0
-);
+// #ifdef RGBLIGHT_LAYERS
+// const rgblight_segment_t PROGMEM BL_caps[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {0, 1, HSV_RED}       // Light 1 LEDs, starting with LED 0
+// );
 
-const rgblight_segment_t PROGMEM BL_adj[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 2, HSV_PURPLE}
-);
+// const rgblight_segment_t PROGMEM BL_adj[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {3, 2, HSV_PURPLE}
+// );
 
-const rgblight_segment_t PROGMEM BL_raise[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 2, 4,255,255}
-);
+// const rgblight_segment_t PROGMEM BL_raise[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {3, 2, 4,255,255}
+// );
 
-const rgblight_segment_t PROGMEM BL_lower[] = RGBLIGHT_LAYER_SEGMENTS(
-    {3, 2, HSV_GREEN}
-);
-
-
-#ifdef RGBLIGHT_LAYERS
-
-const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
-    BL_caps,
-    BL_lower,
-    BL_raise,
-    BL_adj
-);
-
-void keyboard_post_init_user(void) {
-    rgblight_layers = my_rgb_layers;
-}
+// const rgblight_segment_t PROGMEM BL_lower[] = RGBLIGHT_LAYER_SEGMENTS(
+//     {3, 2, HSV_GREEN}
+// );
 
 
-bool led_update_user(led_t led_state) {
-    rgblight_set_layer_state(LL_CAPS, led_state.caps_lock);
-    return true;
-}
 
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    bool b = layer_state_cmp(state, _ADJUST);
-    rgblight_set_layer_state(LL_ADJ, b);
+// const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+//     BL_caps,
+//     BL_lower,
+//     BL_raise,
+//     BL_adj
+// );
 
-    if(b) {
-        return state;
-    };
+// void keyboard_post_init_user(void) {
+//     rgblight_layers = my_rgb_layers;
+// }
 
-    rgblight_set_layer_state(LL_LOWER, layer_state_cmp(state, _LOWER));
-    rgblight_set_layer_state(LL_RAISE, layer_state_cmp(state, _RAISE));
-    return state;
-}
-#endif
+
+// bool led_update_user(led_t led_state) {
+//     rgblight_set_layer_state(LL_CAPS, led_state.caps_lock);
+//     return true;
+// }
+
+
+// layer_state_t layer_state_set_user(layer_state_t state) {
+//     bool b = layer_state_cmp(state, _ADJUST);
+//     rgblight_set_layer_state(LL_ADJ, b);
+
+//     if(b) {
+//         return state;
+//     };
+
+//     rgblight_set_layer_state(LL_LOWER, layer_state_cmp(state, _LOWER));
+//     rgblight_set_layer_state(LL_RAISE, layer_state_cmp(state, _RAISE));
+//     return state;
+// }
+// #endif
 
 #ifdef OLED_DRIVER_ENABLE
 
@@ -324,9 +326,6 @@ static void write_rgb_edit_mode(void){
     oled_write_P(PSTR(" RGB "), false);
     switch (current_rem_mode)
     {
-    case REM_MODE:
-        oled_write_P(PSTR(" MOD "), false);
-        break;
     case REM_HUE:
         oled_write_P(PSTR(" HUE "), false);
         break;
@@ -436,6 +435,31 @@ void oled_task_user(void) {
 
 #endif
 
+static int values[2][3];
+
+void store_colour(void){
+    int layer = get_highest_layer(default_layer_state);
+    values[layer][0] = rgblight_get_hue();
+    values[layer][1] = rgblight_get_sat();
+    values[layer][2] = rgblight_get_val();
+}
+
+void write_colour(uint8_t layer){
+    switch (layer)
+    {
+    case _DEFAULT:
+        rgblight_sethsv(values[_DEFAULT][0],values[_DEFAULT][1],values[_DEFAULT][2]);
+        break;
+    case _GAME:
+        rgblight_sethsv(values[_GAME][0],values[_GAME][1],values[_GAME][2]);
+        break;
+
+    default:
+        break;
+    }
+}
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
     switch (keycode) {
@@ -451,7 +475,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
         case REM_BUTTON:
         if(record->event.pressed){
             if(current_rem_mode==REM_VAL){
-                current_rem_mode=REM_MODE;
+                current_rem_mode=REM_HUE;
             }else{
                 current_rem_mode++;
             }
@@ -483,12 +507,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
         case KC_DEFAULT:
             if (record->event.pressed) {
+                store_colour();
                 set_single_persistent_default_layer(_DEFAULT);
+                write_colour(_DEFAULT);
+
             }
             return false;
         case KC_GAME:
             if (record->event.pressed) {
+                store_colour();
                 set_single_persistent_default_layer(_GAME);
+                write_colour(_GAME);
+
             }
             return false;
         case KC_LOWER:
@@ -598,13 +628,6 @@ void encoder_rgb_edit_tap(bool cw){
 
     switch (current_rem_mode)
     {
-    case REM_MODE:
-        if(cw){
-            rgblight_step();
-        } else {
-            rgblight_step_reverse();
-        }
-        break;
     case REM_HUE:
         if(cw){
             rgblight_increase_hue();
