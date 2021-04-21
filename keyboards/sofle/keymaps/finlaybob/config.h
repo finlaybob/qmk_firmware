@@ -1,8 +1,7 @@
 #pragma once
-
-#define RGB_DI_PIN D3
-
-#ifdef RGB_DI_PIN
+#define MASTER_RIGHT
+#ifdef RGBLIGHT_ENABLE
+    #define RGB_DI_PIN D3
     #define RGBLIGHT_SPLIT
 
     #define RGBLED_NUM 8

@@ -49,8 +49,9 @@ enum RGB_EDIT_MODE {
     REM_VAL
 };
 
-
+#ifdef RGBLIGHT_ENABLE
 static uint8_t current_rem_mode = REM_HUE;
+#endif
 
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
@@ -324,6 +325,7 @@ static void write_rgb_edit_mode(void){
 
     oled_write_P(PSTR("-----"), false);
     oled_write_P(PSTR(" RGB "), false);
+    #ifdef RGBLIGHT_ENABLE
     switch (current_rem_mode)
     {
     case REM_HUE:
@@ -339,6 +341,9 @@ static void write_rgb_edit_mode(void){
     default:
         break;
     }
+    #else
+    oled_write_P(PSTR(" OFF "), false);
+    #endif
 }
 
 
@@ -435,16 +440,22 @@ void oled_task_user(void) {
 
 #endif
 
+#ifdef RGBLIGHT_ENABLE
 static int values[2][3];
 
+#endif
+
 void store_colour(void){
+#ifdef RGBLIGHT_ENABLE
     int layer = get_highest_layer(default_layer_state);
     values[layer][0] = rgblight_get_hue();
     values[layer][1] = rgblight_get_sat();
     values[layer][2] = rgblight_get_val();
+#endif
 }
 
 void write_colour(uint8_t layer){
+#ifdef RGBLIGHT_ENABLE
     switch (layer)
     {
     case _DEFAULT:
@@ -457,6 +468,7 @@ void write_colour(uint8_t layer){
     default:
         break;
     }
+#endif
 }
 
 
@@ -473,6 +485,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
         }
         break;
         case REM_BUTTON:
+#ifdef RGBLIGHT_ENABLE
         if(record->event.pressed){
             if(current_rem_mode==REM_VAL){
                 current_rem_mode=REM_HUE;
@@ -480,6 +493,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
                 current_rem_mode++;
             }
         }
+#endif
         break;
 
 
@@ -621,9 +635,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
 
 #ifdef ENCODER_ENABLE
-
 enum encoder_side {LEFT,RIGHT};
 
+#ifdef RGBLIGHT_ENABLE
 void encoder_rgb_edit_tap(bool cw){
 
     switch (current_rem_mode)
@@ -655,6 +669,7 @@ void encoder_rgb_edit_tap(bool cw){
     }
 
 }
+#endif
 
 void encoder_update_super_alttab(bool cw){
 
@@ -697,8 +712,9 @@ void enc_update_default(uint8_t index, bool cw){
             tap_code(KC_VOLD);
         }
     } else if (index == RIGHT) {
+#if RGBLIGHT_ENABLE
         encoder_rgb_edit_tap(cw);
-
+#endif
     }
 }
 
