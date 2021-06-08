@@ -17,7 +17,10 @@
 #pragma once
 
 // Encoder settings
-#define ENCODER_RESOLUTION 2
+#ifdef ENCODER_RESOLUTION
+#undef ENCODER_RESOLUTION
+#define ENCODER_RESOLUTION 10
+#endif
 
 // LCD blanking period
 #define LCD_ACTIVITY_TIMEOUT 30000
@@ -29,3 +32,5 @@
 
 // Allow for an extra sync command over the split
 #define SPLIT_TRANSACTION_IDS_USER USER_STATE_SYNC
+
+#define AUDIO_CLICKY
