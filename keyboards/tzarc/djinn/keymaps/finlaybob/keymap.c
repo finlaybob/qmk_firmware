@@ -20,17 +20,25 @@
 #include <backlight.h>
 #include <qp.h>
 
-#define MEDIA_KEY_DELAY 10
+#define MEDIA_KEY_DELAY 8
 
-enum { _QWERTY, _LOWER, _RAISE, _ADJUST };
+enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
 #define KC_LWR MO(_LOWER)
 #define KC_RSE MO(_RAISE)
+
+enum
+{
+    PT_RUN = SAFE_RANGE,
+    KC_NXTWD,
+    KC_PRVWD
+};
+
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_all(
-        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
-        KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
+        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS,
+        KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
@@ -39,11 +47,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_LEFT, _______, KC_RIGHT,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
     ),
+    [_GAME] = LAYOUT_all(
+        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS,
+        KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
+        KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+                                   KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
+                                                                      RGB_RMOD,         RGB_MOD,
+                                                     KC_UP,                                              KC_UP,
+                                            KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
+                                                     KC_DOWN,                                            KC_DOWN
+    ),
     [_LOWER] = LAYOUT_all(
         KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        _______, _______, KC_UP,   _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_LEFT, KC_DOWN, KC_RIGHT,_______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______,  _______,                         _______, _______, _______, KC_UP  ,  _______, _______, KC_F12,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
                                                      _______,                                           _______,
@@ -52,8 +71,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_RAISE] = LAYOUT_all(
         KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        CK_TOGG,_______, KC_UP,    _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
-        _______,KC_LEFT, KC_DOWN, KC_RIGHT, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  _______, _______, _______, _______, _______,
+        CK_TOGG, KC_INS,  KC_PSCR, KC_APP ,  PT_RUN, KC_F14, _______,                         _______, _______, KC_PRVWD, KC_UP  ,  KC_NXTWD, _______, KC_F12,
+        _______, _______, _______, _______,_______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, _______, _______, _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      _______,           _______,
@@ -147,7 +166,7 @@ void encoder_update_user(int8_t index, bool clockwise) {
 #include "graphics/src/lock-caps-OFF.c"
 #include "graphics/src/lock-scrl-OFF.c"
 #include "graphics/src/lock-num-OFF.c"
-#include "graphics/src/thintel15.c"
+#include "graphics/src/cc.c"
 
 void draw_ui_user(void) {
     bool            redraw_required = false;
@@ -176,6 +195,9 @@ void draw_ui_user(void) {
                 case _QWERTY:
                     layer_name = "qwerty";
                     break;
+                case _GAME:
+                    layer_name = "GAMER!";
+                    break;
                 case _LOWER:
                     layer_name = "lower";
                     break;
@@ -192,11 +214,11 @@ void draw_ui_user(void) {
             int        ypos     = 4;
             char       buf[32]  = {0};
             snprintf_(buf, sizeof(buf), "layer: %s", layer_name);
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_thintel15, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_thintel15->glyph_height, 0, 0, 0, true);
+            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
         }
 
         static uint32_t last_screen_update = 0;
@@ -207,22 +229,22 @@ void draw_ui_user(void) {
             int        xpos     = 16;
             int        ypos     = 4;
             char       buf[32]  = {0};
-            ypos += 4 + font_thintel15->glyph_height;
+            ypos += 4 + font_cc->glyph_height;
             snprintf_(buf, sizeof(buf), "power: %s", usbpd_str(kb_state.current_setting));
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_thintel15, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_thintel15->glyph_height, 0, 0, 0, true);
+            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
 
             xpos = 16;
-            ypos += 4 + font_thintel15->glyph_height;
+            ypos += 4 + font_cc->glyph_height;
             snprintf_(buf, sizeof(buf), "wpm: %d", (int)get_current_wpm());
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_thintel15, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_thintel15->glyph_height, 0, 0, 0, true);
+            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
         }
     }
 
@@ -236,4 +258,40 @@ void draw_ui_user(void) {
             qp_drawimage_recolor(lcd, 239 - 12 - (32 * 1), 0, last_led_state.scroll_lock ? gfx_lock_scrl_ON : gfx_lock_scrl_OFF, curr_hue, 255, last_led_state.scroll_lock ? 255 : 32);
         }
     }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+
+        case PT_RUN:
+        if(record->event.pressed){
+            if (record->event.pressed) {
+                tap_code16(A(KC_F13));
+            }
+        }
+        break;
+        case KC_PRVWD:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_LEFT);
+            } else {
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_LEFT);
+            }
+            break;
+        case KC_NXTWD:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_RIGHT);
+
+            } else {
+
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_RIGHT);
+
+            }
+            break;
+    }
+
+    return true;
 }
