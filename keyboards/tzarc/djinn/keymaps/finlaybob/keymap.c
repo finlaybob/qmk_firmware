@@ -17,20 +17,28 @@
 #include QMK_KEYBOARD_H
 #include <string.h>
 #include <printf.h>
+#include "Print.h"
 #include <backlight.h>
 #include <qp.h>
 
 #define MEDIA_KEY_DELAY 8
 
 enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
-#define KC_LWR MO(_LOWER)
-#define KC_RSE MO(_RAISE)
+
 
 enum
 {
     PT_RUN = SAFE_RANGE,
     KC_NXTWD,
-    KC_PRVWD
+    KC_PRVWD,
+
+    KC_GAME,
+    KC_DEFAULT,
+
+    KC_RSE,
+    KC_LWR,
+    KC_ADJ
+
 };
 
 
@@ -44,7 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
                                                                       RGB_RMOD,         RGB_MOD,
                                                      KC_UP,                                              KC_UP,
-                                            KC_LEFT, _______, KC_RIGHT,                         KC_LEFT, _______, KC_RIGHT,
+                                            KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
     ),
     [_GAME] = LAYOUT_all(
@@ -52,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
-                                   KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
+                                   KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
                                                                       RGB_RMOD,         RGB_MOD,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
@@ -60,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_LOWER] = LAYOUT_all(
         KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        _______, _______, _______, _______, _______, _______,  _______,                         _______, _______, _______, KC_UP  ,  _______, _______, KC_F12,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, KC_UP  ,  _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -70,10 +78,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      _______,                                           _______
     ),
     [_RAISE] = LAYOUT_all(
-        KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        CK_TOGG, KC_INS,  KC_PSCR, KC_APP ,  PT_RUN, KC_F14, _______,                         _______, _______, KC_PRVWD, KC_UP  ,  KC_NXTWD, _______, KC_F12,
-        _______, _______, _______, _______,_______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
-        _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, _______, _______, _______, _______, _______,
+        KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , PT_RUN , KC_F14, _______,                         _______, _______, KC_PRVWD, KC_UP  ,  KC_NXTWD, _______, KC_F12,
+        _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
+        _______, KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, _______, _______, _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      _______,           _______,
                                                      _______,                                           _______,
@@ -82,7 +90,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ADJUST] = LAYOUT_all(
         _______, KC_CLCK, KC_NLCK, KC_SLCK, _______, _______, _______,                         _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
-        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -91,13 +99,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             _______, _______, _______,                         _______, _______, _______,
                                                      _______,                                           _______
     )
+
+
+
+
 };
 // clang-format on
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    // Default handler for lower/raise/adjust
-    return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
-}
 
 void encoder_update_user(int8_t index, bool clockwise) {
     uint8_t temp_mod = get_mods();
@@ -159,14 +166,16 @@ void encoder_update_user(int8_t index, bool clockwise) {
 //----------------------------------------------------------
 // Display
 
-#include "graphics/src/djinn.c"
+// #include "graphics/src/djinn.c"
+
+#include "graphics/src/bg.c"
 #include "graphics/src/lock-caps-ON.c"
 #include "graphics/src/lock-scrl-ON.c"
 #include "graphics/src/lock-num-ON.c"
 #include "graphics/src/lock-caps-OFF.c"
 #include "graphics/src/lock-scrl-OFF.c"
 #include "graphics/src/lock-num-OFF.c"
-#include "graphics/src/cc.c"
+#include "graphics/src/uni.c"
 
 void draw_ui_user(void) {
     bool            redraw_required = false;
@@ -177,11 +186,8 @@ void draw_ui_user(void) {
         redraw_required = true;
     }
 
-    // Show the Djinn logo and two vertical bars on both sides
     if (redraw_required) {
-        qp_drawimage_recolor(lcd, 120 - gfx_djinn->width / 2, 32, gfx_djinn, curr_hue, 255, 255);
-        qp_rect(lcd, 0, 0, 8, 319, curr_hue, 255, 255, true);
-        qp_rect(lcd, 231, 0, 239, 319, curr_hue, 255, 255, true);
+        qp_drawimage(lcd, 0, 0, gfx_bg);
     }
 
     // Show layer info on the left side
@@ -193,58 +199,83 @@ void draw_ui_user(void) {
             const char *layer_name = "unknown";
             switch (get_highest_layer(layer_state)) {
                 case _QWERTY:
-                    layer_name = "qwerty";
-                    break;
                 case _GAME:
-                    layer_name = "GAMER!";
+                    layer_name = "Default";
                     break;
                 case _LOWER:
-                    layer_name = "lower";
+                    layer_name = "Lower";
                     break;
                 case _RAISE:
-                    layer_name = "raise";
+                    layer_name = "Raise";
                     break;
                 case _ADJUST:
-                    layer_name = "adjust";
+                    layer_name = "Adjust";
                     break;
             }
+
+            const char *def_layer_name = "unknown";
+            switch (get_highest_layer(default_layer_state)) {
+                case _QWERTY:
+                    def_layer_name = "Default";
+                    break;
+                case _GAME:
+                    def_layer_name = "GAME";
+                    break;
+            }
+
 
             static int max_xpos = 0;
             int        xpos     = 16;
             int        ypos     = 4;
             char       buf[32]  = {0};
-            snprintf_(buf, sizeof(buf), "layer: %s", layer_name);
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+
+            snprintf_(buf, sizeof(buf), "Layer: %s", layer_name);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+
+
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
+            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
+            ypos += 4 + font_uni->glyph_height;
+            xpos = 16;
+
+            snprintf_(buf, sizeof(buf), "Mode: %s", def_layer_name);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+
+            if (max_xpos < xpos) {
+                max_xpos = xpos;
+            }
+            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
+            ypos += 4 + font_uni->glyph_height;
         }
 
         static uint32_t last_screen_update = 0;
-        if (redraw_required || timer_elapsed32(last_screen_update) > 125) {
+        if (redraw_required || timer_elapsed32(last_screen_update) > 250) {
             last_screen_update = timer_read32();
 
             static int max_xpos = 0;
             int        xpos     = 16;
-            int        ypos     = 4;
+            int        ypos     = (4+font_uni->glyph_height)*2;
             char       buf[32]  = {0};
-            ypos += 4 + font_cc->glyph_height;
             snprintf_(buf, sizeof(buf), "power: %s", usbpd_str(kb_state.current_setting));
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
+            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
+            ypos += 4 + font_uni->glyph_height;
 
             xpos = 16;
-            ypos += 4 + font_cc->glyph_height;
             snprintf_(buf, sizeof(buf), "wpm: %d", (int)get_current_wpm());
-            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_cc, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+            xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
+
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_cc->glyph_height, 0, 0, 0, true);
+            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
+            ypos += 4 + font_uni->glyph_height;
         }
     }
 
@@ -270,6 +301,82 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
         break;
+
+        case KC_DEFAULT:
+            if (record->event.pressed) {
+                set_single_persistent_default_layer(_QWERTY);
+            }
+            return false;
+
+        case KC_GAME:
+            if (record->event.pressed) {
+                set_single_persistent_default_layer(_GAME);
+            }
+            return false;
+        case KC_LWR:
+            if (record->event.pressed) {
+                layer_on(_LOWER);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            } else {
+                layer_off(_LOWER);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+        case KC_RSE:
+            if (record->event.pressed) {
+                layer_on(_RAISE);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            } else {
+                layer_off(_RAISE);
+                update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+        case KC_ADJ:
+            if (record->event.pressed) {
+                layer_on(_ADJUST);
+            } else {
+                layer_off(_ADJUST);
+            }
+            return false;
+        case KC_COPY:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_C);
+            } else {
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_C);
+            }
+            return false;
+        case KC_PASTE:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_V);
+            } else {
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_V);
+            }
+            return false;
+        case KC_CUT:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_X);
+            } else {
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_X);
+            }
+            return false;
+            break;
+        case KC_UNDO:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LCTL));
+                register_code(KC_Z);
+            } else {
+                unregister_mods(mod_config(MOD_LCTL));
+                unregister_code(KC_Z);
+            }
+            return false;
+
+
         case KC_PRVWD:
             if (record->event.pressed) {
                 register_mods(mod_config(MOD_LCTL));
