@@ -23,6 +23,8 @@
 
 #define MEDIA_KEY_DELAY 8
 
+#define KC_GBP UC(0x00A3)
+
 enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
 
 
@@ -45,47 +47,47 @@ enum
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_all(
-        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS,
+        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_GBP,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      RGB_RMOD,         RGB_MOD,
+                                                                      _______,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
     ),
     [_GAME] = LAYOUT_all(
-        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS,
+        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_GBP,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      RGB_RMOD,         RGB_MOD,
+                                                                      _______,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
-        KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, KC_UP  ,  _______, _______, KC_F12,
-        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
+        KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
-                                                     _______,                                           _______,
-                                            _______, _______, _______,                         _______, _______, _______,
+                                                     _______,                                           KC_MPLY,
+                                            _______, _______, _______,                         KC_MPRV, _______, KC_MNXT,
                                                      _______,                                           _______
     ),
     [_RAISE] = LAYOUT_all(
-        KC_F12,  KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , PT_RUN , KC_F14, _______,                         _______, _______, KC_PRVWD, KC_UP  ,  KC_NXTWD, _______, KC_F12,
+        KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , PT_RUN , KC_F14, _______,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
-        _______, KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, _______, _______, _______, _______, _______,
+        _______, KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      _______,           _______,
                                                      _______,                                           _______,
-                                            _______, _______, _______,                         _______, _______, _______,
+                                            RGB_RMOD, _______, RGB_MOD,                         _______, _______, _______,
                                                      _______,                                           _______
     ),
     [_ADJUST] = LAYOUT_all(
@@ -115,9 +117,14 @@ void encoder_update_user(int8_t index, bool clockwise) {
     if (is_shift) {
         if (index == 0) { /* First encoder */
             if (clockwise) {
+                unregister_mods(mod_config(MOD_LSFT));
                 tap_code16(KC_MS_WH_DOWN);
+                register_mods(mod_config(MOD_LSFT));
+
             } else {
+                unregister_mods(mod_config(MOD_LSFT));
                 tap_code16(KC_MS_WH_UP);
+                register_mods(mod_config(MOD_LSFT));
             }
         } else if (index == 1) { /* Second encoder */
             if (clockwise) {
@@ -236,7 +243,6 @@ void draw_ui_user(void) {
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
             ypos += 4 + font_uni->glyph_height;
             xpos = 16;
 
@@ -246,7 +252,6 @@ void draw_ui_user(void) {
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
             ypos += 4 + font_uni->glyph_height;
         }
 
@@ -256,25 +261,24 @@ void draw_ui_user(void) {
 
             static int max_xpos = 0;
             int        xpos     = 16;
-            int        ypos     = (4+font_uni->glyph_height)*2;
+            int        ypos     = 4+(4+font_uni->glyph_height)*2;
             char       buf[32]  = {0};
-            snprintf_(buf, sizeof(buf), "power: %s", usbpd_str(kb_state.current_setting));
+
+            snprintf_(buf, sizeof(buf), "Power: %s", usbpd_str(kb_state.current_setting));
             xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
 
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
             ypos += 4 + font_uni->glyph_height;
 
             xpos = 16;
-            snprintf_(buf, sizeof(buf), "wpm: %d", (int)get_current_wpm());
+            snprintf_(buf, sizeof(buf), "WPM: %03u", (int)get_current_wpm());
             xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
 
             if (max_xpos < xpos) {
                 max_xpos = xpos;
             }
-            //qp_rect(lcd, xpos, ypos, max_xpos, ypos + font_uni->glyph_height, 0, 0, 0, true);
             ypos += 4 + font_uni->glyph_height;
         }
     }
