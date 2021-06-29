@@ -21,9 +21,8 @@
 #include <backlight.h>
 #include <qp.h>
 
-#define MEDIA_KEY_DELAY 8
+#define MEDIA_KEY_DELAY 4
 
-#define KC_GBP UC(0x00A3)
 
 enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
 
@@ -33,6 +32,7 @@ enum
     PT_RUN = SAFE_RANGE,
     KC_NXTWD,
     KC_PRVWD,
+    KC_EMOJI,
 
     KC_GAME,
     KC_DEFAULT,
@@ -50,9 +50,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_GBP,
+        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      _______,         _______,
+                                                                      KC_MPLY,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
@@ -61,9 +61,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_GBP,
+        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      _______,         _______,
+                                                                      KC_MPLY,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
@@ -72,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
+        _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
                                                      _______,                                           KC_MPLY,
@@ -107,6 +107,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 // clang-format on
+
+static bool request_update = false;
 
 void encoder_update_user(int8_t index, bool clockwise) {
     uint8_t temp_mod = get_mods();
@@ -200,8 +202,14 @@ void draw_ui_user(void) {
     // Show layer info on the left side
     if (is_keyboard_left()) {
         static uint32_t last_layer_state = 0;
-        if (redraw_required || last_layer_state != layer_state) {
+        static uint32_t last_default_layer_state = 0;
+
+        if (redraw_required
+                || last_layer_state != layer_state
+                || last_default_layer_state != default_layer_state
+                ) {
             last_layer_state = layer_state;
+            last_default_layer_state = default_layer_state;
 
             const char *layer_name = "unknown";
             switch (get_highest_layer(layer_state)) {
@@ -295,26 +303,42 @@ void draw_ui_user(void) {
     }
 }
 
+
+
+float songQwerty[][2] = SONG(QWERTY_SOUND);
+float songWorkman[][2] = SONG(WORKMAN_SOUND);
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
     switch (keycode) {
+
+        case KC_EMOJI:
+        if (record->event.pressed){
+            tap_code16(G(KC_DOT));
+        }
+        return false;
 
         case PT_RUN:
         if(record->event.pressed){
-            if (record->event.pressed) {
-                tap_code16(A(KC_F13));
-            }
+            tap_code16(A(KC_F13));
         }
         break;
 
         case KC_DEFAULT:
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_QWERTY);
+                request_update = true;
+                PLAY_SONG(songQwerty);
+
             }
             return false;
 
         case KC_GAME:
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_GAME);
+                request_update = true;
+                PLAY_SONG(songWorkman);
             }
             return false;
         case KC_LWR:
