@@ -19,7 +19,7 @@
 // Encoder settings
 #ifdef ENCODER_RESOLUTION
 #undef ENCODER_RESOLUTION
-#define ENCODER_RESOLUTION 10
+#define ENCODER_RESOLUTION 2
 #endif
 
 // LCD blanking period

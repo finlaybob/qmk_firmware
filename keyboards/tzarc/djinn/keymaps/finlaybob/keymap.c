@@ -21,7 +21,7 @@
 #include <backlight.h>
 #include <qp.h>
 
-#define MEDIA_KEY_DELAY 4
+#define MEDIA_KEY_DELAY 6
 
 
 enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
@@ -39,7 +39,9 @@ enum
 
     KC_RSE,
     KC_LWR,
-    KC_ADJ
+    KC_ADJ,
+
+    KC_ARRW
 
 };
 
@@ -72,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  _______, _______, _______,
+        _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
                                                      _______,                                           KC_MPLY,
@@ -83,7 +85,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         CK_TOGG, KC_INS,  KC_PSCR, KC_APP , PT_RUN , KC_F14, _______,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
-        _______, KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
+        _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      _______,           _______,
                                                      _______,                                           _______,
@@ -119,14 +121,9 @@ void encoder_update_user(int8_t index, bool clockwise) {
     if (is_shift) {
         if (index == 0) { /* First encoder */
             if (clockwise) {
-                unregister_mods(mod_config(MOD_LSFT));
-                tap_code16(KC_MS_WH_DOWN);
-                register_mods(mod_config(MOD_LSFT));
-
+                rgblight_increase_hue();
             } else {
-                unregister_mods(mod_config(MOD_LSFT));
-                tap_code16(KC_MS_WH_UP);
-                register_mods(mod_config(MOD_LSFT));
+                rgblight_decrease_hue();
             }
         } else if (index == 1) { /* Second encoder */
             if (clockwise) {
@@ -152,9 +149,9 @@ void encoder_update_user(int8_t index, bool clockwise) {
     } else {
         if (index == 0) { /* First encoder */
             if (clockwise) {
-                rgblight_increase_hue();
+                tap_code16(KC_MS_WH_DOWN);
             } else {
-                rgblight_decrease_hue();
+                tap_code16(KC_MS_WH_UP);
             }
         } else if (index == 1) { /* Second encoder */
             uint16_t held_keycode_timer = timer_read();
@@ -281,7 +278,7 @@ void draw_ui_user(void) {
             ypos += 4 + font_uni->glyph_height;
 
             xpos = 16;
-            snprintf_(buf, sizeof(buf), "WPM: %03u", (int)get_current_wpm());
+            snprintf_(buf, sizeof(buf), "WPM: %05u", (int)get_current_wpm());
             xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
 
             if (max_xpos < xpos) {
@@ -313,6 +310,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
+        case KC_ARRW:
+        if(record->event.pressed){
+            tap_code(KC_EQL);
+            register_mods(mod_config(MOD_LSFT));
+            tap_code(KC_DOT);
+            unregister_mods(mod_config(MOD_LSFT));
+        }
+        return false;
+
         case KC_EMOJI:
         if (record->event.pressed){
             tap_code16(G(KC_DOT));
@@ -321,6 +327,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case PT_RUN:
         if(record->event.pressed){
+
             tap_code16(A(KC_F13));
         }
         break;
@@ -366,45 +373,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_off(_ADJUST);
             }
             return false;
-        case KC_COPY:
-            if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
-                register_code(KC_C);
-            } else {
-                unregister_mods(mod_config(MOD_LCTL));
-                unregister_code(KC_C);
-            }
-            return false;
-        case KC_PASTE:
-            if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
-                register_code(KC_V);
-            } else {
-                unregister_mods(mod_config(MOD_LCTL));
-                unregister_code(KC_V);
-            }
-            return false;
-        case KC_CUT:
-            if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
-                register_code(KC_X);
-            } else {
-                unregister_mods(mod_config(MOD_LCTL));
-                unregister_code(KC_X);
-            }
-            return false;
-            break;
-        case KC_UNDO:
-            if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
-                register_code(KC_Z);
-            } else {
-                unregister_mods(mod_config(MOD_LCTL));
-                unregister_code(KC_Z);
-            }
-            return false;
-
-
         case KC_PRVWD:
             if (record->event.pressed) {
                 register_mods(mod_config(MOD_LCTL));
