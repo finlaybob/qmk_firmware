@@ -54,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      KC_MPLY,         _______,
+                                                                      _______,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
@@ -65,7 +65,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      KC_MPLY,         _______,
+                                                                      _______,         _______,
                                                      KC_UP,                                              KC_UP,
                                             KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
                                                      KC_DOWN,                                            KC_DOWN
@@ -87,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
-                                                                     _______,           _______,
+                                                                     KC_MPLY,           _______,
                                                      _______,                                           _______,
                                             RGB_RMOD, _______, RGB_MOD,                         _______, _______, _______,
                                                      _______,                                           _______
@@ -118,6 +118,9 @@ void encoder_update_user(int8_t index, bool clockwise) {
     bool    is_ctrl  = (temp_mod | temp_osm) & MOD_MASK_CTRL;
     bool    is_shift = (temp_mod | temp_osm) & MOD_MASK_SHIFT;
 
+    bool    is_raise = IS_LAYER_ON(_RAISE);
+
+
     if (is_shift) {
         if (index == 0) { /* First encoder */
             if (clockwise) {
@@ -147,24 +150,34 @@ void encoder_update_user(int8_t index, bool clockwise) {
             }
         }
     } else {
-        if (index == 0) { /* First encoder */
+        if (index == 1) { /* First encoder */
             if (clockwise) {
-                tap_code16(KC_MS_WH_DOWN);
+                tap_code16(KC_DOWN);
             } else {
-                tap_code16(KC_MS_WH_UP);
+                tap_code16(KC_UP);
             }
-        } else if (index == 1) { /* Second encoder */
-            uint16_t held_keycode_timer = timer_read();
-            uint16_t mapped_code        = 0;
-            if (clockwise) {
-                mapped_code = KC_VOLD;
-            } else {
-                mapped_code = KC_VOLU;
+        } else if (index == 0) { /* Second encoder */
+            if(is_raise)
+            {
+                uint16_t held_keycode_timer = timer_read();
+                uint16_t mapped_code        = 0;
+                if (clockwise) {
+                    mapped_code = KC_VOLU;
+                } else {
+                    mapped_code = KC_VOLD;
+                }
+                register_code(mapped_code);
+                while (timer_elapsed(held_keycode_timer) < MEDIA_KEY_DELAY)
+                    ; /* no-op */
+                unregister_code(mapped_code);
             }
-            register_code(mapped_code);
-            while (timer_elapsed(held_keycode_timer) < MEDIA_KEY_DELAY)
-                ; /* no-op */
-            unregister_code(mapped_code);
+            else{
+                if (clockwise) {
+                    tap_code(KC_RIGHT);
+                } else {
+                    tap_code(KC_LEFT);
+                }
+            }
         }
     }
 }
@@ -278,7 +291,7 @@ void draw_ui_user(void) {
             ypos += 4 + font_uni->glyph_height;
 
             xpos = 16;
-            snprintf_(buf, sizeof(buf), "WPM: %05u", (int)get_current_wpm());
+            snprintf_(buf, sizeof(buf), "WPM: %03u", (int)get_current_wpm());
             xpos = qp_drawtext_recolor(lcd, xpos, ypos, font_uni, buf, curr_hue, 255, 255, curr_hue, 255, 0);
 
             if (max_xpos < xpos) {
@@ -397,4 +410,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+extern void kb_state_sync(void);
+
+void suspend_power_down_user() {
+    kb_state.lcd_power = 0;
+    qp_power(lcd,0);
+    backlight_disable();
+    kb_state_sync();
+    wait_ms(50);
+}
+
+void suspend_wakeup_init_user(){
+    kb_state.lcd_power = 1;
+    qp_power(lcd,1);
+    backlight_enable();
+    kb_state_sync();
+    wait_ms(50);
 }
