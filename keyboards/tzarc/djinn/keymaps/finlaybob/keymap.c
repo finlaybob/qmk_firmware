@@ -225,26 +225,26 @@ void draw_ui_user(void) {
             switch (get_highest_layer(layer_state)) {
                 case _QWERTY:
                 case _GAME:
-                    layer_name = "Default";
+                    layer_name = "Default  ";
                     break;
                 case _LOWER:
-                    layer_name = "Lower";
+                    layer_name = "Lower    ";
                     break;
                 case _RAISE:
-                    layer_name = "Raise";
+                    layer_name = "Raise    ";
                     break;
                 case _ADJUST:
-                    layer_name = "Adjust";
+                    layer_name = "Adjust   ";
                     break;
             }
 
             const char *def_layer_name = "unknown";
             switch (get_highest_layer(default_layer_state)) {
                 case _QWERTY:
-                    def_layer_name = "Default";
+                    def_layer_name = "Default ";
                     break;
                 case _GAME:
-                    def_layer_name = "GAME";
+                    def_layer_name = "Game!\nSwap Space";
                     break;
             }
 

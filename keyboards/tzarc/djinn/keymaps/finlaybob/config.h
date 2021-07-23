@@ -45,3 +45,14 @@
 #define STARTUP_SONG SONG(QWERTY_SOUND)
 #endif
 #endif
+
+#ifdef DEBOUNCE
+#undef DEBOUNCE
+#define DEBOUNCE 10
+#endif
+
+
+#ifdef TAP_CODE_DELAY
+#undef TAP_CODE_DELAY
+#define TAP_CODE_DELAY 30
+#endif
