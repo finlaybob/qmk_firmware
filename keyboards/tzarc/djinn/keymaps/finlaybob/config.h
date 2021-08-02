@@ -56,3 +56,8 @@
 #undef TAP_CODE_DELAY
 #define TAP_CODE_DELAY 30
 #endif
+
+#ifdef BACKLIGHT_LIMIT_VAL
+#undef BACKLIGHT_LIMIT_VAL
+#define BACKLIGHT_LIMIT_VAL 192
+#endif

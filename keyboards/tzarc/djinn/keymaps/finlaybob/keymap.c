@@ -54,10 +54,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      _______,         _______,
-                                                     KC_UP,                                              KC_UP,
-                                            KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
-                                                     KC_DOWN,                                            KC_DOWN
+                                                                      KC_MPLY,         _______,
+                                                     RGB_MOD,                                              KC_UP,
+                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, _______, KC_RIGHT,
+                                                     RGB_RMOD,                                            KC_DOWN
     ),
     [_GAME] = LAYOUT_all(
         KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
@@ -65,10 +65,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
-                                                                      _______,         _______,
-                                                     KC_UP,                                              KC_UP,
-                                            KC_PRVWD, _______, KC_NXTWD,                         KC_LEFT, _______, KC_RIGHT,
-                                                     KC_DOWN,                                            KC_DOWN
+                                                                      KC_MPLY,         _______,
+                                                     RGB_MOD,                                           KC_UP,
+                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, _______, KC_RIGHT,
+                                                     RGB_RMOD,                                          KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
         KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
@@ -77,8 +77,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
-                                                     _______,                                           KC_MPLY,
-                                            _______, _______, _______,                         KC_MPRV, _______, KC_MNXT,
+                                                     _______,                                           _______,
+                                            _______, _______, _______,                         _______, _______, _______,
                                                      _______,                                           _______
     ),
     [_RAISE] = LAYOUT_all(
@@ -87,9 +87,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
-                                                                     KC_MPLY,           _______,
+                                                                     _______,           _______,
                                                      _______,                                           _______,
-                                            RGB_RMOD, _______, RGB_MOD,                         _______, _______, _______,
+                                            _______, _______, _______,                         _______, _______, _______,
                                                      _______,                                           _______
     ),
     [_ADJUST] = LAYOUT_all(
@@ -157,8 +157,13 @@ void encoder_update_user(int8_t index, bool clockwise) {
                 tap_code16(KC_UP);
             }
         } else if (index == 0) { /* Second encoder */
-            if(is_raise)
-            {
+            if(is_raise){
+                if (clockwise) {
+                    tap_code(KC_RIGHT);
+                } else {
+                    tap_code(KC_LEFT);
+                }
+            }else{
                 uint16_t held_keycode_timer = timer_read();
                 uint16_t mapped_code        = 0;
                 if (clockwise) {
@@ -170,13 +175,6 @@ void encoder_update_user(int8_t index, bool clockwise) {
                 while (timer_elapsed(held_keycode_timer) < MEDIA_KEY_DELAY)
                     ; /* no-op */
                 unregister_code(mapped_code);
-            }
-            else{
-                if (clockwise) {
-                    tap_code(KC_RIGHT);
-                } else {
-                    tap_code(KC_LEFT);
-                }
             }
         }
     }
@@ -244,7 +242,7 @@ void draw_ui_user(void) {
                     def_layer_name = "Default ";
                     break;
                 case _GAME:
-                    def_layer_name = "Game!\nSwap Space";
+                    def_layer_name = "GAMING  ";
                     break;
             }
 
