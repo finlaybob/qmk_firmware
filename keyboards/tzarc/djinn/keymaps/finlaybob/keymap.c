@@ -55,9 +55,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_EMOJI,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_LALT,
                                                                       KC_MPLY,         _______,
-                                                     RGB_MOD,                                              KC_UP,
-                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, _______, KC_RIGHT,
-                                                     RGB_RMOD,                                            KC_DOWN
+                                                     RGB_MOD,                                           KC_UP,
+                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, KC_SPC, KC_RIGHT,
+                                                     RGB_RMOD,                                          KC_DOWN
     ),
     [_GAME] = LAYOUT_all(
         KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
@@ -67,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_LALT,
                                                                       KC_MPLY,         _______,
                                                      RGB_MOD,                                           KC_UP,
-                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, _______, KC_RIGHT,
+                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, KC_SPC, KC_RIGHT,
                                                      RGB_RMOD,                                          KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
