@@ -55,9 +55,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_EMOJI,
                                                                       KC_MPLY,         _______,
-                                                     A(KC_UP),                                           KC_UP,
-                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, KC_SPC, KC_RIGHT,
-                                                     A(KC_DOWN),                                          KC_DOWN
+                                                     KC_MS_BTN1,                                           KC_UP,
+                                            KC_MS_BTN4, _______, KC_MS_BTN5,                         KC_LEFT, KC_SPC, KC_RIGHT,
+                                                     KC_MS_BTN2,                                          KC_DOWN
     ),
     [_GAME] = LAYOUT_all(
         KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
@@ -66,9 +66,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_EMOJI,
                                                                       KC_MPLY,         _______,
-                                                     A(KC_UP),                                          KC_UP,
-                                            KC_MPRV, _______, KC_MNXT,                         KC_LEFT, KC_SPC, KC_RIGHT,
-                                                     A(KC_DOWN),                                        KC_DOWN
+                                                     _______,                                          KC_UP,
+                                            _______, _______, _______,                         KC_LEFT, KC_SPC, KC_RIGHT,
+                                                     _______,                                        KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
         KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
@@ -77,9 +77,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
                                                                      BL_DEC,             BL_INC,
-                                                     _______,                                           _______,
-                                            _______, _______, _______,                         _______, _______, _______,
-                                                     _______,                                           _______
+                                                     _______,                                           RGB_MOD,
+                                            _______, _______, _______,                         KC_MPRV, _______, KC_MNXT,
+                                                     _______,                                           RGB_RMOD
     ),
     [_RAISE] = LAYOUT_all(
         KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
