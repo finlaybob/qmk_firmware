@@ -24,12 +24,12 @@
 #define MEDIA_KEY_DELAY 6
 
 
-enum { _QWERTY,_GAME, _LOWER, _RAISE, _ADJUST };
+enum { _QWERTY,_GAME,_LOWER, _RAISE, _ADJUST };
 
 
 enum
 {
-    PT_RUN = SAFE_RANGE,
+    KC_AF13 = SAFE_RANGE,
     KC_NXTWD,
     KC_PRVWD,
     KC_EMOJI,
@@ -41,10 +41,17 @@ enum
     KC_LWR,
     KC_ADJ,
 
-    KC_ARRW
+    KC_ARRW,
+
+    KC_LTTH, //Left Thumb
+    KC_RGTH  //Right Thumb
 
 };
 
+
+int16_t KC_LTTH_KEY = KC_ENT;
+int16_t KC_RGTH_KEY = KC_SPC;
+int8_t thumb_mode = _QWERTY;
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -53,25 +60,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                                   KC_LGUI, KC_LALT, KC_LWR,  KC_ENT,                            KC_SPC,  KC_RSE, KC_RCTL, KC_EMOJI,
+                                   KC_LGUI, KC_LALT, KC_LWR,  KC_LTTH,                          KC_RGTH,  KC_RSE, KC_RCTL, KC_EMOJI,
                                                                       KC_MPLY,         _______,
-                                                     KC_MS_BTN1,                                           KC_UP,
-                                            KC_MS_BTN4, _______, KC_MS_BTN5,                         KC_LEFT, KC_SPC, KC_RIGHT,
-                                                     KC_MS_BTN2,                                          KC_DOWN
-    ),
-    [_GAME] = LAYOUT_all(
-        KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,    KC_GRV,                           KC_DEL,  KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
-        KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,    KC_LBRC,                          KC_RBRC, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
-        KC_LCTL,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,    KC_HOME,                          KC_PGUP, KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-        KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_END,                           KC_PGDN, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                                   KC_LGUI, KC_LALT, KC_LWR,  KC_SPC,                            KC_ENT,  KC_RSE, KC_RCTL, KC_EMOJI,
-                                                                      KC_MPLY,         _______,
-                                                     _______,                                          KC_UP,
-                                            _______, _______, _______,                         KC_LEFT, KC_SPC, KC_RIGHT,
-                                                     _______,                                        KC_DOWN
+                                                     A(KC_UP),                                           KC_UP,
+                                            KC_MS_BTN4, KC_SPC, KC_MS_BTN5,                         KC_LEFT, KC_SPC, KC_RIGHT,
+                                                     A(KC_DOWN),                                          KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
-        KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         KC_NO, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
@@ -83,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_RAISE] = LAYOUT_all(
         KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , PT_RUN , KC_F14, _______,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
+        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , KC_AF13 , KC_F14, KC_F15,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -93,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      _______,                                           _______
     ),
     [_ADJUST] = LAYOUT_all(
-        _______, KC_CLCK, KC_NLCK, KC_SLCK, _______, _______, _______,                         _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
+        _______, KC_CLCK, KC_NLCK, KC_SLCK, KC_F16, KC_F17, KC_F18,                         _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
         _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
@@ -210,19 +206,18 @@ void draw_ui_user(void) {
     // Show layer info on the left side
     if (is_keyboard_left()) {
         static uint32_t last_layer_state = 0;
-        static uint32_t last_default_layer_state = 0;
+        static uint16_t last_thumb_mode = 0;
 
         if (redraw_required
                 || last_layer_state != layer_state
-                || last_default_layer_state != default_layer_state
+                || last_thumb_mode != thumb_mode
                 ) {
             last_layer_state = layer_state;
-            last_default_layer_state = default_layer_state;
+            last_thumb_mode = thumb_mode;
 
             const char *layer_name = "unknown";
             switch (get_highest_layer(layer_state)) {
                 case _QWERTY:
-                case _GAME:
                     layer_name = "Default  ";
                     break;
                 case _LOWER:
@@ -237,13 +232,12 @@ void draw_ui_user(void) {
             }
 
             const char *def_layer_name = "unknown";
-            switch (get_highest_layer(default_layer_state)) {
-                case _QWERTY:
-                    def_layer_name = "Default ";
-                    break;
-                case _GAME:
-                    def_layer_name = "GAMING  ";
-                    break;
+            if (thumb_mode == _QWERTY) {
+                def_layer_name = "Default ";
+            }
+            else
+            {
+                def_layer_name = "  GAME  ";
             }
 
 
@@ -321,6 +315,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
 
+        case KC_LTTH:
+        if(record->event.pressed)
+        {
+            register_code(KC_LTTH_KEY);
+        }
+        else
+        {
+            unregister_code(KC_LTTH_KEY);
+        }
+        return false;
+
+        case KC_RGTH:
+        if(record->event.pressed)
+        {
+            register_code(KC_RGTH_KEY);
+        }
+        else
+        {
+            unregister_code(KC_RGTH_KEY);
+        }
+        return false;
+
         case KC_ARRW:
         if(record->event.pressed){
             tap_code(KC_EQL);
@@ -336,16 +352,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
 
-        case PT_RUN:
+        case KC_AF13:
         if(record->event.pressed){
-
             tap_code16(A(KC_F13));
+
         }
         break;
 
         case KC_DEFAULT:
             if (record->event.pressed) {
-                set_single_persistent_default_layer(_QWERTY);
+                KC_LTTH_KEY = KC_ENT;
+                KC_RGTH_KEY = KC_SPC;
+                thumb_mode = _QWERTY;
                 request_update = true;
                 PLAY_SONG(songQwerty);
 
@@ -354,7 +372,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case KC_GAME:
             if (record->event.pressed) {
-                set_single_persistent_default_layer(_GAME);
+                KC_LTTH_KEY = KC_SPC;
+                KC_RGTH_KEY = KC_ENT;
+                thumb_mode = _GAME;
                 request_update = true;
                 PLAY_SONG(songWorkman);
             }
