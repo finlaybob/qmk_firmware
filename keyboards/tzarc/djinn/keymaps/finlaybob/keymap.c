@@ -17,7 +17,7 @@
 #include QMK_KEYBOARD_H
 #include <string.h>
 #include <printf.h>
-#include "Print.h"
+#include "print.h"
 #include <backlight.h>
 #include <qp.h>
 
