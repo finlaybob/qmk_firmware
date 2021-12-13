@@ -1,13 +1,13 @@
 MCU = STM32G474
 
-BOOTMAGIC_ENABLE = lite     # Virtual DIP switch configuration
-MOUSEKEY_ENABLE = no        # Mouse keys
+BOOTMAGIC_ENABLE = yes		  # Virtual DIP switch configuration
+MOUSEKEY_ENABLE = yes        # Mouse keys
 EXTRAKEY_ENABLE = yes       # Audio control and System control
-CONSOLE_ENABLE = no         # Console for debug
-COMMAND_ENABLE = no         # Commands for debug and configuration
-SLEEP_LED_ENABLE = no       # Breathing sleep LED during USB suspend
-NKRO_ENABLE = no            # USB Nkey Rollover
-UNICODE_ENABLE = no         # Unicode
+CONSOLE_ENABLE = yes         # Console for debug
+COMMAND_ENABLE = yes         # Commands for debug and configuration
+SLEEP_LED_ENABLE = yes       # Breathing sleep LED during USB suspend
+NKRO_ENABLE = yes            # USB Nkey Rollover
+UNICODE_ENABLE = yes         # Unicode
 WPM_ENABLE = yes
 
 SPLIT_KEYBOARD = yes
