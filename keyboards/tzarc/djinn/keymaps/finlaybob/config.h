@@ -33,8 +33,6 @@
 // Allow for an extra sync command over the split
 #define SPLIT_TRANSACTION_IDS_USER USER_STATE_SYNC
 
-#define AUDIO_CLICKY
-
 #define QUANTUM_PAINTER_SUPPORTS_256_PALETTE TRUE
 
 #define UNICODE_SELECTED_MODES UC_WINC

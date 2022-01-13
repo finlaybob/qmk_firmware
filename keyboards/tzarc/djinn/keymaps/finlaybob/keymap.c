@@ -17,7 +17,7 @@
 #include QMK_KEYBOARD_H
 #include <string.h>
 #include <printf.h>
-#include "Print.h"
+#include "print.h"
 #include <backlight.h>
 #include <qp.h>
 
@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_LOWER] = LAYOUT_all(
         KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        KC_NO, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_EQL, _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -79,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_RAISE] = LAYOUT_all(
         KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        CK_TOGG, KC_INS,  KC_PSCR, KC_APP , KC_AF13 , KC_F14, KC_F15,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
+        _______, KC_INS,  KC_PSCR, KC_APP , KC_AF13 , KC_F14, KC_F15,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
