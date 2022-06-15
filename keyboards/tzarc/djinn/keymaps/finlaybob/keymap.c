@@ -18,13 +18,19 @@
 #include <string.h>
 #include <printf.h>
 #include "print.h"
+
 #include <backlight.h>
 #include <qp.h>
+
+#include "debug.h"
+
+
+#include "p.h"
 
 #define MEDIA_KEY_DELAY 6
 
 
-enum { _QWERTY,_GAME,_LOWER, _RAISE, _ADJUST };
+enum { _QWERTY,_GAME,_LOWER, _RAISE, _ADJUST, _PW };
 
 
 enum
@@ -44,7 +50,10 @@ enum
     KC_ARRW,
 
     KC_LTTH, //Left Thumb
-    KC_RGTH  //Right Thumb
+    KC_RGTH,  //Right Thumb
+
+    KC_PW1,
+    KC_PW2
 
 };
 
@@ -63,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    KC_LGUI, KC_LALT, KC_LWR,  KC_LTTH,                          KC_RGTH,  KC_RSE, KC_RCTL, KC_EMOJI,
                                                                       KC_MPLY,         _______,
                                                      A(KC_UP),                                           KC_UP,
-                                            KC_MS_BTN4, KC_SPC, KC_MS_BTN5,                         KC_LEFT, KC_SPC, KC_RIGHT,
+                                            KC_MS_BTN4, KC_SPC, KC_MS_BTN5,                     KC_LEFT, KC_SPC, KC_RIGHT,
                                                      A(KC_DOWN),                                          KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
@@ -90,7 +99,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ADJUST] = LAYOUT_all(
         _______, KC_CLCK, KC_NLCK, KC_SLCK, KC_F16, KC_F17, KC_F18,                            _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
-        _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, OSL(_PW), _______,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+                                   _______, _______, _______, _______,                         _______, _______, _______, _______,
+                                                                     _______,           _______,
+                                                     _______,                                           _______,
+                                            _______, _______, _______,                         _______, _______, _______,
+                                                     _______,                                           _______
+    ),
+    [_PW] = LAYOUT_all(
+        _______, KC_PW1, KC_PW2, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -194,6 +214,7 @@ void draw_ui_user(void) {
     bool            redraw_required = false;
     static uint16_t last_hue        = 0xFFFF;
     uint8_t         curr_hue        = rgblight_get_hue();
+
     if (last_hue != curr_hue) {
         last_hue        = curr_hue;
         redraw_required = true;
@@ -228,6 +249,9 @@ void draw_ui_user(void) {
                     break;
                 case _ADJUST:
                     layer_name = "Adjust   ";
+                    break;
+                case _PW:
+                    layer_name = "PASSWORD!";
                     break;
             }
 
@@ -266,7 +290,11 @@ void draw_ui_user(void) {
         }
 
         static uint32_t last_screen_update = 0;
+
         if (redraw_required || timer_elapsed32(last_screen_update) > 250) {
+            
+            dprintf("Doing redraw");
+            
             last_screen_update = timer_read32();
 
             static int max_xpos = 0;
@@ -291,12 +319,13 @@ void draw_ui_user(void) {
             }
             ypos += 4 + font_uni->glyph_height;
         }
+
         static led_t last_led_state = {0};
         if (redraw_required || last_led_state.raw != host_keyboard_led_state().raw) {
             last_led_state.raw = host_keyboard_led_state().raw;
-            qp_drawimage_recolor(lcd, 239 - 12 - (32 * 3), 319-32, last_led_state.caps_lock ? gfx_lock_caps_ON : gfx_lock_caps_OFF, curr_hue, 255, last_led_state.caps_lock ? 255 : 32);
-            qp_drawimage_recolor(lcd, 239 - 12 - (32 * 2), 319-32, last_led_state.num_lock ? gfx_lock_num_ON : gfx_lock_num_OFF, curr_hue, 255, last_led_state.num_lock ? 255 : 32);
-            qp_drawimage_recolor(lcd, 239 - 12 - (32 * 1), 319-32, last_led_state.scroll_lock ? gfx_lock_scrl_ON : gfx_lock_scrl_OFF, curr_hue, 255, last_led_state.scroll_lock ? 255 : 32);
+            qp_drawimage_recolor(lcd, (32 * 0), 319-32, last_led_state.caps_lock ? gfx_lock_caps_ON : gfx_lock_caps_OFF, curr_hue, 255, last_led_state.caps_lock ? 255 : 32);
+            qp_drawimage_recolor(lcd, (32 * 1), 319-32, last_led_state.num_lock ? gfx_lock_num_ON : gfx_lock_num_OFF, curr_hue, 255, last_led_state.num_lock ? 255 : 32);
+            qp_drawimage_recolor(lcd, (32 * 2), 319-32, last_led_state.scroll_lock ? gfx_lock_scrl_ON : gfx_lock_scrl_OFF, curr_hue, 255, last_led_state.scroll_lock ? 255 : 32);
         }
     }
 
@@ -308,8 +337,9 @@ void draw_ui_user(void) {
 
 
 
-float songQwerty[][2] = SONG(AUDIO_ON_SOUND);
-float songWorkman[][2] = SONG(GUITAR_SOUND);
+float songDef[][2] = SONG(AUDIO_OFF_SOUND);
+float songGame[][2] = SONG(AUDIO_ON_SOUND);
+float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),);
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -359,6 +389,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         }
         break;
+        
+        // case KC_PWLA:
+        // if (record->event.pressed){
+            
+        // }
+        // return false;
+        
+        
+        case KC_PW1:
+        if (record->event.pressed){
+            PLAY_SONG(songPw);
+            send_string(PASSWD1);
+        }
+        return false;
+
+        case KC_PW2:
+        if (record->event.pressed){
+            PLAY_SONG(songPw);
+            send_string(PASSWD2);
+        }
+        return false;
+
 
         case KC_DEFAULT:
             if (record->event.pressed) {
@@ -366,8 +418,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 KC_RGTH_KEY = KC_SPC;
                 thumb_mode = _QWERTY;
                 request_update = true;
-                PLAY_SONG(songQwerty);
-
+                PLAY_SONG(songDef);
             }
             return false;
 
@@ -377,7 +428,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 KC_RGTH_KEY = KC_ENT;
                 thumb_mode = _GAME;
                 request_update = true;
-                PLAY_SONG(songWorkman);
+                PLAY_SONG(songGame);
             }
             return false;
         case KC_LWR:
