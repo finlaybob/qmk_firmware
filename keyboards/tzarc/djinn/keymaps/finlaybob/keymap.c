@@ -52,6 +52,7 @@ enum
     KC_LTTH, //Left Thumb
     KC_RGTH,  //Right Thumb
 
+    KC_PWDL,
     KC_PW1,
     KC_PW2
 
@@ -99,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ADJUST] = LAYOUT_all(
         _______, KC_CLCK, KC_NLCK, KC_SLCK, KC_F16, KC_F17, KC_F18,                            _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
-        _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, OSL(_PW), _______,
+        _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, KC_PWDL, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
                                    _______, _______, _______, _______,                         _______, _______, _______, _______,
@@ -340,6 +341,7 @@ void draw_ui_user(void) {
 float songDef[][2] = SONG(AUDIO_OFF_SOUND);
 float songGame[][2] = SONG(AUDIO_ON_SOUND);
 float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),);
+float songPwLayer[][2] = SONG(Q__NOTE(_A4), Q__NOTE(_C4),Q__NOTE(_DS4),);
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -390,11 +392,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         break;
         
-        // case KC_PWLA:
-        // if (record->event.pressed){
-            
-        // }
-        // return false;
+        case KC_PWDL:
+        if (record->event.pressed){
+            layer_on(_PW);
+            PLAY_SONG(songPwLayer);
+        } else {
+            layer_off(_PW);
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+        }
+        return false;
         
         
         case KC_PW1:
