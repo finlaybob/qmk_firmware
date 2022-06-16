@@ -341,7 +341,7 @@ void draw_ui_user(void) {
 float songDef[][2] = SONG(AUDIO_OFF_SOUND);
 float songGame[][2] = SONG(AUDIO_ON_SOUND);
 float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),);
-float songPwLayer[][2] = SONG(Q__NOTE(_A4), Q__NOTE(_C4),Q__NOTE(_DS4),);
+float songPwLayer[][2] = SONG(E__NOTE(_A3), E__NOTE(_C4),E__NOTE(_DS4),E__NOTE(_A4),E__NOTE(_DS4),E__NOTE(_C4),E__NOTE(_A3),);
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
