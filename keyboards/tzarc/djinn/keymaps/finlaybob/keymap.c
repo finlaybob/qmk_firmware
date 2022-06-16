@@ -54,7 +54,10 @@ enum
 
     KC_PWDL,
     KC_PW1,
-    KC_PW2
+    KC_PW2,
+    KC_PW3,
+    KC_PW4,
+
 
 };
 
@@ -110,7 +113,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      _______,                                           _______
     ),
     [_PW] = LAYOUT_all(
-        _______, KC_PW1, KC_PW2, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_PW1, KC_PW2, KC_PW3, KC_PW4, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
@@ -226,7 +229,7 @@ void draw_ui_user(void) {
     }
 
     // Show layer info on the left side
-    if (is_keyboard_left()) {
+    if (!is_keyboard_left()) {
         static uint32_t last_layer_state = 0;
         static uint16_t last_thumb_mode = 0;
 
@@ -341,7 +344,8 @@ void draw_ui_user(void) {
 float songDef[][2] = SONG(AUDIO_OFF_SOUND);
 float songGame[][2] = SONG(AUDIO_ON_SOUND);
 float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),);
-float songPwLayer[][2] = SONG(E__NOTE(_A3), E__NOTE(_C4),E__NOTE(_DS4),E__NOTE(_A4),E__NOTE(_DS4),E__NOTE(_C4),E__NOTE(_A3),);
+float songPwLayer[][2] = SONG(E__NOTE(_A3), E__NOTE(_C4),E__NOTE(_DS4),E__NOTE(_A4),E__NOTE(_DS4),);
+float songResume[][2] = SONG(Q__NOTE(_B4), Q__NOTE(_C4),Q__NOTE(_G4),);
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -417,6 +421,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
 
+        case KC_PW3:
+        if (record->event.pressed){
+            PLAY_SONG(songPw);
+            send_string(PASSWD3);
+        }
+        return false;
+        case KC_PW4:
+        if (record->event.pressed){
+            PLAY_SONG(songPw);
+            send_string(PASSWD4);
+        }
+        return false;
 
         case KC_DEFAULT:
             if (record->event.pressed) {
@@ -504,4 +520,5 @@ void suspend_wakeup_init_user(){
     backlight_enable();
     kb_state_sync();
     wait_ms(50);
+    PLAY_SONG(songResume);
 }
