@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
 #include <stdio.h>
 #endif
 
@@ -229,7 +229,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // }
 // #endif
 
-#ifdef OLED_DRIVER_ENABLE
+#ifdef OLED_ENABLE
 
 
 static uint8_t wpm_graph_interval = 250;
@@ -429,13 +429,13 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     }
 }
 
-void oled_task_user(void) {
+bool oled_task_user(void) {
     if (is_keyboard_master()){
         print_status_primary();
     }else{
         render_wpm_graph();
     }
-
+    return false;
 }
 
 #endif
@@ -747,7 +747,7 @@ void enc_update_adjust(uint8_t index, bool cw){
     return;
 }
 
-void encoder_update_user(uint8_t index, bool clockwise)
+bool encoder_update_user(uint8_t index, bool clockwise)
 {
     switch (get_highest_layer(layer_state))
     {
@@ -763,6 +763,7 @@ void encoder_update_user(uint8_t index, bool clockwise)
         default:
             enc_update_default(index,clockwise);
     }
+    return true;
 }
 
 #endif
