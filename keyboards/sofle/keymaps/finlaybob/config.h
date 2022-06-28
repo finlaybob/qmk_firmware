@@ -1,5 +1,5 @@
 #pragma once
-#define MASTER_RIGHT
+#define MASTER_LEFT
 #ifdef RGBLIGHT_ENABLE
     #define RGB_DI_PIN D3
     #define RGBLIGHT_SPLIT
