@@ -80,7 +80,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      A(KC_DOWN),                                          KC_DOWN
     ),
     [_LOWER] = LAYOUT_all(
-        KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,                         _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, KC_F12,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, KC_EQL,  _______, _______, _______, _______, _______,                         _______, _______, _______, _______,  KC_ARRW, _______, _______,
@@ -91,7 +91,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      _______,                                           RGB_RMOD
     ),
     [_RAISE] = LAYOUT_all(
-        KC_NUBS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        KC_BSLS, KC_F1,   KC_F2,   KC_F3,   KC_F4  , KC_F5 , _______,                          _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
         _______, KC_INS,  KC_PSCR, KC_APP , KC_AF13 , KC_F14, KC_F15,                          _______, _______, KC_PRVWD,KC_UP  , KC_NXTWD, _______, KC_F12,
         _______, _______, _______, _______, _______, KC_UNDS, KC_NO,                           KC_NO,   KC_EQL,  KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______,
         _______, _______, _______, _______, _______, KC_MINS, KC_NO,                           KC_NO,   KC_PLUS, KC_HOME, _______, KC_END, _______, _______,
@@ -102,7 +102,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                      _______,                                           _______
     ),
     [_ADJUST] = LAYOUT_all(
-        _______, KC_CLCK, KC_NLCK, KC_SLCK, KC_F16, KC_F17, KC_F18,                            _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
+        KC_NUBS, KC_CLCK, KC_NLCK, KC_SLCK, KC_F16, KC_F17, KC_F18,                            _______, _______, _______, _______, DEBUG,   EEP_RST, RESET,
         _______, _______, _______, _______, _______, _______, KC_DEFAULT,                      KC_GAME, _______, _______, _______, _______, KC_PWDL, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______, _______,
@@ -335,7 +335,7 @@ void draw_ui_user(void) {
 
     // Show LED lock indicators on the right side
     
-        
+
     
 }
 
@@ -343,10 +343,8 @@ void draw_ui_user(void) {
 
 float songDef[][2] = SONG(AUDIO_OFF_SOUND);
 float songGame[][2] = SONG(AUDIO_ON_SOUND);
-float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),S__NOTE(_C4), S__NOTE(_C5),S__NOTE(_G4),S__NOTE(_G4),);
-float songPwLayer[][2] = SONG(E__NOTE(_A3), E__NOTE(_C4),E__NOTE(_DS4),E__NOTE(_A4),E__NOTE(_DS4),);
-float songResume[][2] = SONG(Q__NOTE(_B4), Q__NOTE(_C4),Q__NOTE(_G4),);
-
+float songPw[][2] = SONG(S__NOTE(_C4), S__NOTE(_C5),);
+float songPwLayer[][2] = SONG(E__NOTE(_A2), E__NOTE(_C3),E__NOTE(_DS3),E__NOTE(_A3),E__NOTE(_DS3),);
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
@@ -520,5 +518,4 @@ void suspend_wakeup_init_user(){
     backlight_enable();
     kb_state_sync();
     wait_ms(50);
-    PLAY_SONG(songResume);
 }
