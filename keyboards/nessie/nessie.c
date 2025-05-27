@@ -36,7 +36,7 @@ uint32_t jiggler_callback(uint32_t trigger_time, void *cb_arg) {
     report->y = deltas[(phase + 8) & 31];
     phase     = (phase + 1) & 31;
     host_mouse_send(report);
-    return 16; // Call the callback every 16 ms.
+    return 250; // Call the callback every 250 ms.
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
