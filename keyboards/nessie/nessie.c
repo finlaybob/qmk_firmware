@@ -7,6 +7,12 @@
 #include "CKCPWD.h"
 
 void keyboard_post_init_kb(void) {
+
+    debug_enable=true;
+    debug_matrix=true;
+    debug_keyboard=true;
+    debug_mouse=true;
+
 #ifdef PIN_LCD_POWER
     setPinOutput(PIN_LCD_POWER);
     writePinHigh(PIN_LCD_POWER);
@@ -22,6 +28,7 @@ void keyboard_post_init_kb(void) {
 }
 
 static uint32_t last_time = 0;
+static uint32_t last_mouse_time = 0;
 
 // Pascal Getreuer's "Jiggler" macro
 // https://getreuer.info/posts/keyboards/macros3/index.html#a-mouse-jiggler
@@ -101,4 +108,17 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 layer_state_t default_layer_state_set_user(layer_state_t state) {
     nd_mode = get_highest_layer(state);
     return state;
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+
+    debug_enable=true;
+    debug_mouse=true;
+    if (timer_elapsed32(last_mouse_time) > 1000) {
+        printf("Mouse report: %d %d %d %d %d\n", mouse_report.buttons, mouse_report.x, mouse_report.y, mouse_report.v, mouse_report.h);
+        last_mouse_time = timer_read32();
+
+    }
+
+    return mouse_report;
 }

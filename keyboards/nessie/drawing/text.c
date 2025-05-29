@@ -40,13 +40,13 @@ void ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line) {
 
     switch (align) {
         case align_left:
-            qp_drawtext(nd_surf, ndt_cursor_x, ndt_cursor_y, font, str);
+            qp_drawtext_recolor(nd_surf, ndt_cursor_x, ndt_cursor_y, font, str, 8, 8, 255, 0,0,0);
             break;
         case align_centre:
-            qp_drawtext(nd_surf, X_MID - (str_width / 2), ndt_cursor_y, font, str);
+            qp_drawtext_recolor(nd_surf, X_MID - (str_width / 2), ndt_cursor_y, font, str, 8, 8, 255, 0,0,0);
             break;
         case align_right:
-            qp_drawtext(nd_surf, WIDTH - str_width - 1, ndt_cursor_y, font, str);
+            qp_drawtext_recolor(nd_surf, WIDTH - str_width - 1, ndt_cursor_y, font, str, 8, 8, 255, 0,0,0);
             break;
     }
 

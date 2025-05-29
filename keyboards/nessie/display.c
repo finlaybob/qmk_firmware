@@ -9,6 +9,9 @@
 #include "enums.h"
 #include "quantum.h"
 
+#define HSV_DARK_COLOUR 248, 164, 102
+#define HSV_LIGHT_COLOUR 15, 255, 255
+
 painter_device_t              nd_lcd;
 painter_image_handle_t        nessie;
 static painter_image_handle_t logo;
@@ -68,9 +71,9 @@ void display_startup(void) {
 
     wait_ms(100);
 
-    qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_GREEN, HSV_BLACK);
+    qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_LIGHT_COLOUR, HSV_BLACK);
     nd_dirty = true;
-    qp_rect(nd_surf, 0, 0, x_max, 319, HSV_MAGENTA, false);
+    qp_rect(nd_surf, 0, 0, x_max, 319, HSV_DARK_COLOUR, false);
 
     ndt_cursor_reset();
 
