@@ -14,6 +14,7 @@
         "mousekey": true,
         "nkro": true,
         "backlight": true,
+        "console": true,
     },
     "matrix_pins": {
         "cols": ["GP18", "GP19", "GP20", "GP21", "GP22", "GP26", "GP27", "GP28"],
