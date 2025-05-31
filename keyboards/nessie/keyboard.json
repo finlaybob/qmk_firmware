@@ -1,7 +1,7 @@
 {
-    "manufacturer": "Neil Finlay",
-    "keyboard_name": "nessie",
-    "maintainer": "Neil Finlay",
+    "manufacturer": "finlaybob (Neil Finlay)",
+    "keyboard_name": "Nessie",
+    "maintainer": "finlaybob (Neil Finlay)",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
     "backlight": {
@@ -23,9 +23,9 @@
     "processor": "RP2040",
     "url": "",
     "usb": {
-        "device_version": "1.0.0",
-        "pid": "0x0000",
-        "vid": "0xFEED"
+        "device_version": "1.1.0",
+        "pid": "0x0002",
+        "vid": "0xE55E"
     },
     "layouts": {
         "LAYOUT": {
@@ -97,9 +97,8 @@
                 {"matrix": [7, 7], "x": 10, "y": 4},
 
                 {"matrix": [7, 3], "x": 3.5, "y": 5}
-
-
-
+                // This is the "click" of the encoder.
+                // Will not be present if the encoder is not present
             ]
         }
     }
