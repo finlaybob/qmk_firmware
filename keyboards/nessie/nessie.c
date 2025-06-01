@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "custom_keys.h"
+
+#include "display.h"
+#include "enums.h"
 
 void keyboard_post_init_kb(void) {
-
+    display_startup();
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {

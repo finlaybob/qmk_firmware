@@ -15,6 +15,9 @@
         "extrakey": true,
         "mousekey": true,
         "nkro": true,
+        "quantum_painter": true,
+        "wpm": true,
+        "backlight": true
     },
     "matrix_pins": {
         "cols": ["GP18", "GP19", "GP20", "GP21", "GP22", "GP26", "GP27", "GP28"],
