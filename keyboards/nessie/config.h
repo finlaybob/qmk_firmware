@@ -1,11 +1,6 @@
-// Copyright © 2025 Neil Finlay <finbsp@gmail.com>
-// SPDX-License-Identifier: GPL-2.0-or-later
-
 #pragma once
 
-/* Double tap reset button to enter bootloader */
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP17
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
 
 #ifdef BACKLIGHT_ENABLE
@@ -16,24 +11,39 @@
 #define SPI_DRIVER SPID0
 
 #undef SPI_SCK_PIN
-#define SPI_SCK_PIN GP2
-
 #undef SPI_MOSI_PIN
-#define SPI_MOSI_PIN GP3
-
 #undef SPI_MISO_PIN
+
+#define SPI_SCK_PIN GP2
+#define SPI_MOSI_PIN GP3
 #define SPI_MISO_PIN GP4
 
-#define TP_CS_PIN GP1
+#ifdef POINTING_DEVICE_ENABLE
+#   define TP_CS_PIN GP1
+#   define POINTING_DEVICE_CS_PIN TP_CS_PIN
+#   define CIRQUE_PINNACLE_SPI_LSBFIRST false
+#   define CIRQUE_PINNACLE_SPI_CS_PIN TP_CS_PIN
+#   define CIRQUE_PINNACLE_DIAMETER_MM 40
+#   define POINTING_DEVICE_DEBUG
+#endif //POINTING_DEVICE_ENABLE
 
-#define POINTING_DEVICE_DEBUG
 
 #define DISP_CS_PIN GP5
 #define DISP_DC_PIN GP6
 #define DISP_RST_PIN GP7
 
-#define POINTING_DEVICE_CS_PIN TP_CS_PIN
 
-#define CIRQUE_PINNACLE_SPI_LSBFIRST false
-#define CIRQUE_PINNACLE_SPI_CS_PIN TP_CS_PIN
-#define CIRQUE_PINNACLE_DIAMETER_MM 40
+#define BOOTMAGIC_ROW 6
+#define BOOTMAGIC_COLUMN 0
+
+#define _DEF 0
+#define _GME 1
+#define _COL 2
+#define _LWR 3
+#define _RSE 4
+#define _ADJ 5
+#define _CFG 6
+
+#define TRI_LAYER_LOWER_LAYER _LWR
+#define TRI_LAYER_UPPER_LAYER _RSE
+#define TRI_LAYER_ADJUST_LAYER _ADJ
