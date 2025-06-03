@@ -2,180 +2,112 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "display.h"
-#include "color.h"
-#include "drawing/nessie.qgf.h"
-#include "drawing/logo.qgf.h"
-#include "drawing/text.h"
-
 #include "drawing/dimensions.h"
-
 #include "enums.h"
 #include "quantum.h"
 
 painter_device_t              nd_lcd;
-painter_image_handle_t        nessie;
-static painter_image_handle_t logo;
-uint8_t                       nd_cur_layer;
-uint8_t                       nd_mode;
-bool                          nd_dirty;
-static deferred_token         nd_token;
-static deferred_token         icon_animation_token;
+static lv_obj_t *tv;
+static int cur_scr = 0;
+static deferred_token update_display_token;
 
-static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)];
 
-uint32_t render_callback(uint32_t trigger_time, void *cb_arg) {
+uint32_t update_display_callback(uint32_t trigger_time, void *cb_arg) {
     display_render();
-    return 16;
+    return 2000;
 }
 
-// Draw the splash screen directly to the LCD
-void draw_splash(void) {
-    qp_rect(nd_lcd, 0, 0, 239, 319, HSV_BLACK, true);
-    qp_rect(nd_lcd, 0, 0, 239, 319, HSV_WHITE, false);
-
-    logo = qp_load_image_mem(gfx_logo);
-
-    icon_animation_token = qp_animate(nd_lcd, X_MID - 20 - (logo->width), Y_MID - (logo->height / 2), logo);
-
-    qp_drawtext(nd_lcd, X_MID + 30 - (qp_textwidth(font, "Nessie") / 2), Y_MID + 10 - font->line_height, font, "Nessie");
-
-    // qp_close_image(icon);
-    nessie = qp_load_image_mem(gfx_nessie);
+void lv_example_spinner_1(void)
+{
+    /*Create a spinner*/
+    lv_obj_t * spinner = lv_spinner_create(lv_scr_act(), 1000, 60);
+    lv_obj_set_size(spinner, 100, 100);
+    lv_obj_center(spinner);
 }
 
-uint32_t cleanup_animation(uint32_t trigger_time, void *cb_arg) {
-    if (icon_animation_token) {
-        qp_stop_animation(icon_animation_token);
-        icon_animation_token = INVALID_DEFERRED_TOKEN;
+void lv_example_tileview_1(void)
+{
+    tv = lv_tileview_create(lv_scr_act());
+
+    /*Tile1: just a label*/
+    lv_obj_t * tile1 = lv_tileview_add_tile(tv, 0, 0, LV_DIR_BOTTOM);
+    lv_obj_t * label = lv_label_create(tile1);
+    lv_label_set_text(label, "Scroll down");
+    lv_obj_center(label);
+
+
+    /*Tile2: a button*/
+    lv_obj_t * tile2 = lv_tileview_add_tile(tv, 0, 1, LV_DIR_TOP | LV_DIR_RIGHT);
+
+    lv_obj_t * btn = lv_btn_create(tile2);
+
+    label = lv_label_create(btn);
+    lv_label_set_text(label, "Scroll up or right");
+
+    lv_obj_set_size(btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_center(btn);
+
+    /*Tile3: a list*/
+    lv_obj_t * tile3 = lv_tileview_add_tile(tv, 1, 1, LV_DIR_LEFT);
+    lv_obj_t * list = lv_list_create(tile3);
+    lv_obj_set_size(list, LV_PCT(100), LV_PCT(100));
+
+    lv_list_add_btn(list, NULL, "One");
+    lv_list_add_btn(list, NULL, "Two");
+    lv_list_add_btn(list, NULL, "Three");
+    lv_list_add_btn(list, NULL, "Four");
+    lv_list_add_btn(list, NULL, "Five");
+    lv_list_add_btn(list, NULL, "Six");
+    lv_list_add_btn(list, NULL, "Seven");
+    lv_list_add_btn(list, NULL, "Nine");
+    lv_list_add_btn(list, NULL, "Ten");
+
+}
+
+void display_render(void)
+{
+    if (tv == NULL) {
+        return;
     }
-    qp_close_image(logo);
-    return 0;
+    // Update the tileview to show the current screen
+    // This is a placeholder for the actual logic to determine which screen to show
+    // For example, you might want to switch screens based on a variable or user input
+    // For now, we will just set the first tile as the current tile
+    int row = 0;
+    if (cur_scr == 0) {
+        row = 0;
+    } else if (cur_scr == 1) {
+        row = 0;
+    } else if (cur_scr == 2) {
+        row = 1;
+    } else {
+        row = 1; // Default to the first tile
+    }
+
+    int col = 0;
+    if(cur_scr == 0) {
+        col = 0;
+    } else if (cur_scr == 1) {
+        col = 1;
+    } else if (cur_scr == 2) {
+        col = 1;
+    } else {
+        col = 0; // Default to the first tile
+    }
+    cur_scr = (cur_scr + 1) % 3; // Cycle through screens for demonstration
+
+    // Set the tileview to the current tile
+    lv_obj_set_tile_id(tv, row, col, LV_ANIM_ON);
 }
 
 void display_startup(void) {
     nd_lcd = qp_ili9341_make_spi_device(WIDTH, HEIGHT, DISP_CS_PIN, DISP_DC_PIN, DISP_RST_PIN, 4, 0);
-
-    font = ndt_load_font();
-
-    // Initialise the LCD
     qp_init(nd_lcd, QP_ROTATION_0);
-    nd_surf = qp_make_rgb565_surface(WIDTH, HEIGHT, framebuffer);
 
-    qp_init(nd_surf, QP_ROTATION_0);
-    // Turn on the LCD and clear the display
-
-    qp_power(nd_lcd, true);
-
-    draw_splash();
-    qp_flush(nd_lcd);
-
-    wait_ms(100);
-
-    qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_GREEN, HSV_BLACK);
-    nd_dirty = true;
-    qp_rect(nd_surf, 0, 0, x_max, 319, HSV_MAGENTA, false);
-
-    ndt_cursor_reset();
-
-    defer_exec(SPLASH_TIMEOUT, cleanup_animation, NULL);
-    nd_token = defer_exec(SPLASH_TIMEOUT, render_callback, NULL);
-}
-
-void display_render(void) {
-    // REMEMBER to draw as little as possible as few times as possible
-
-    char    buf[64] = {0};
-    uint8_t line    = 0;
-
-    static uint32_t last_update = 0;
-    static bool     first_run   = true;
-
-    bool update_wpm = (timer_elapsed32(last_update) > UPDATE_TIMEOUT) || first_run;
-    ndt_cursor_reset();
-
-#ifdef WPM_ENABLE
-    // Just update the WPM every second
-    if (update_wpm) {
-        snprintf(buf, sizeof(buf), "󰓅 %03hhu\n", get_current_wpm());
-        ndt_print(buf, align_left, line);
-        nd_dirty = true;
-    }
-    ndt_carraige_return();
-    line++;
-
-#endif
-
-    static uint8_t last_layer = 0;
-    if ((nd_cur_layer != last_layer) || first_run) {
-        ndt_print("󰽘 ", align_left, line);
-        switch (nd_cur_layer) {
-            case _DEF:
-            case _GME:
-                ndt_print("BASE  ", align_left, line);
-                break;
-            case _LWR:
-                ndt_print("LOWER ", align_left, line);
-                break;
-            case _RSE:
-                ndt_print("RAISE ", align_left, line);
-                break;
-            case _ADJ:
-                ndt_print("ADJUST", align_left, line);
-                break;
-            case _CFG:
-                ndt_print("CONFIG", align_left, line);
-                break;
-        }
-        nd_dirty   = true;
-        last_layer = nd_cur_layer;
-        ndt_carraige_return();
-    }
-    line++;
-
-    static uint8_t last_mode = 0;
-    if ((nd_mode != last_mode) || first_run) {
-        ndt_print(" ", align_left, line);
-        switch (nd_mode) {
-            case _DEF:
-                ndt_print("QWERTY  ", align_left, line);
-                break;
-            case _COL:
-                ndt_print("COLEMAK ", align_left, line);
-                break;
-            case _GME:
-                ndt_print("(GAME)  ", align_left, line);
-        }
-        nd_dirty  = true;
-        last_mode = nd_mode;
-        ndt_carraige_return();
-    }
-    line++;
-
-#ifdef DEBUG_MATRIX_SCAN_RATE
-    static uint32_t last_matrix_scan_rate = 0;
-    if ((last_matrix_scan_rate != get_matrix_scan_rate()) || force_redraw) {
-        snprintf(buf, sizeof(buf), "󰘨 %lu\n", get_matrix_scan_rate());
-        ndt_print(buf, align_left, line);
-        nd_dirty = true;
-    }
-    last_matrix_scan_rate = get_matrix_scan_rate();
-    ndt_carraige_return();
-
-    line++;
-#endif
-
-    if (update_wpm || first_run) {
-        // reset the timer
-        last_update = timer_read32();
-    }
-
-    // Swap buffers
-    if (nd_dirty || first_run) {
-        qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
-        nd_dirty = false;
-    }
-
-    if (first_run) {
-        first_run = false;
+    if(qp_lvgl_attach(nd_lcd))
+    {
+        lv_example_tileview_1();
+        update_display_token = defer_exec(UPDATE_TIMEOUT, update_display_callback, NULL);
     }
 }
+

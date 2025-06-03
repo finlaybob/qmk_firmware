@@ -21,11 +21,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 }
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
-    // static uint32_t last_task_print_time = 0; // Keep this specific to the task
-    // if (timer_elapsed32(last_task_print_time) > 2000) { // Print every 2 seconds
-    //     printf("Nessie pointing device task running (from nessie.c task V2).\n");
-    //     last_task_print_time = timer_read32();
-    // }
+
     return mouse_report;
 }
 
