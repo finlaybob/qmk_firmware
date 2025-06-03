@@ -8,6 +8,12 @@
 #   define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_A
 #endif
 
+#ifdef ENCODER_ENABLE
+#   define ENCODER_A_PIN GP0
+#   define ENCODER_B_PIN GP1
+#   define ENCODER_RESOLUTION 4
+#endif
+
 #define SPI_DRIVER SPID0
 
 #undef SPI_SCK_PIN

@@ -5,6 +5,7 @@
 
 #include "display.h"
 #include "enums.h"
+#include <printf.h>
 
 void keyboard_post_init_kb(void) {
     display_startup();
@@ -12,9 +13,13 @@ void keyboard_post_init_kb(void) {
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     // Call the user processing function.
-    if (keycode == KC_CKCP && record->event.pressed) {
+    if (keycode == CUSTOM_P && record->event.pressed) {
         // Custom keycode action
-        printf("Custom keycode KC_CKCP pressed!\n");
+        printf("Custom P key pressed!\n");
+        printf("nd_hue: %hhu", nd_hue);
+        nd_hue = (nd_hue + 10) % 256; // Cycle hue
+        nd_dirty = true; // Mark the display as dirty to trigger a redraw
+
         // You can add more actions here if needed
     }
     return process_record_user(keycode, record);
