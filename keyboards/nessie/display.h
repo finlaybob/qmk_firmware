@@ -11,6 +11,9 @@ extern painter_device_t      nd_surf;
 extern painter_font_handle_t font;
 extern uint8_t               nd_cur_layer;
 extern uint8_t               nd_mode;
+extern uint8_t               nd_hue;
+extern uint8_t               nd_sat;
+extern uint8_t               nd_val;
 bool                         nd_dirty;
 
 #define UPDATE_TIMEOUT 1000

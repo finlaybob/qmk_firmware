@@ -4,6 +4,7 @@
 #include "display.h"
 #include "color.h"
 #include "drawing/nessie.qgf.h"
+#include "drawing/nessie-text-logo.qgf.h"
 #include "drawing/logo.qgf.h"
 #include "drawing/text.h"
 
@@ -14,9 +15,15 @@
 
 painter_device_t              nd_lcd;
 painter_image_handle_t        nessie;
+painter_image_handle_t        text_logo;
 static painter_image_handle_t logo;
 uint8_t                       nd_cur_layer;
 uint8_t                       nd_mode;
+
+uint8_t                       nd_hue;
+uint8_t                       nd_sat;
+uint8_t                       nd_val;
+
 bool                          nd_dirty;
 static deferred_token         nd_token;
 static deferred_token         icon_animation_token;
@@ -34,13 +41,14 @@ void draw_splash(void) {
     qp_rect(nd_lcd, 0, 0, 239, 319, HSV_WHITE, false);
 
     logo = qp_load_image_mem(gfx_logo);
+    text_logo = qp_load_image_mem(gfx_nessie_text_logo);
 
-    icon_animation_token = qp_animate(nd_lcd, X_MID - 20 - (logo->width), Y_MID - (logo->height / 2), logo);
+    icon_animation_token = qp_animate(nd_lcd, X_MID - (logo->width / 2 ), (Y_MID/2) - (logo->height / 2), logo);
 
-    qp_drawtext(nd_lcd, X_MID + 30 - (qp_textwidth(font, "Nessie") / 2), Y_MID + 10 - font->line_height, font, "Nessie");
+    qp_drawimage(nd_lcd, X_MID - (text_logo->width / 2), y_max - (Y_MID/2) - (text_logo->height), text_logo);
 
-    // qp_close_image(icon);
-    nessie = qp_load_image_mem(gfx_nessie);
+    //qp_drawtext(nd_lcd, X_MID + 30 - (qp_textwidth(font, "Nessie") / 2), Y_MID + 10 - font->line_height, font, "Nessie");
+
 }
 
 uint32_t cleanup_animation(uint32_t trigger_time, void *cb_arg) {
@@ -53,6 +61,11 @@ uint32_t cleanup_animation(uint32_t trigger_time, void *cb_arg) {
 }
 
 void display_startup(void) {
+
+    nd_hue = 30 / 360.0 * 255;
+    nd_sat = 255;
+    nd_val = 255;
+
     nd_lcd = qp_ili9341_make_spi_device(WIDTH, HEIGHT, DISP_CS_PIN, DISP_DC_PIN, DISP_RST_PIN, 4, 0);
 
     font = ndt_load_font();
@@ -69,11 +82,17 @@ void display_startup(void) {
     draw_splash();
     qp_flush(nd_lcd);
 
-    wait_ms(100);
 
-    qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_GREEN, HSV_BLACK);
+
+
+
+
+    wait_ms(100);
+    nessie = qp_load_image_mem(gfx_nessie);
+    //qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_GREEN, HSV_BLACK);
+    qp_drawimage(nd_surf, X_MID - (text_logo->width / 2), y_max - (text_logo->height), text_logo);
+
     nd_dirty = true;
-    qp_rect(nd_surf, 0, 0, x_max, 319, HSV_MAGENTA, false);
 
     ndt_cursor_reset();
 
@@ -171,6 +190,7 @@ void display_render(void) {
 
     // Swap buffers
     if (nd_dirty || first_run) {
+        qp_rect(nd_surf, 0, 0, x_max, 319, nd_hue,nd_sat,nd_val, false);
         qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
         nd_dirty = false;
     }
