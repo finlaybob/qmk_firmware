@@ -18,6 +18,7 @@ bool                         nd_dirty;
 
 #define UPDATE_TIMEOUT 1000
 #define SPLASH_TIMEOUT 2000
+#define DISP_TIMEOUT 30000
 
 void display_startup(void);
 void display_render(void);
