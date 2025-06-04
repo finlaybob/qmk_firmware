@@ -7,7 +7,6 @@
     "diode_direction": "COL2ROW",
     "backlight": {
         "max_brightness": 255,
-        "pin": "GP8",
         "levels": 5
     },
     "features": {
