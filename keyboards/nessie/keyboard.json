@@ -6,8 +6,11 @@
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
     "backlight": {
+        "default": {
+            "brightness": 7
+        },
         "max_brightness": 255,
-        "levels": 5
+        "levels": 10
     },
     "features": {
         "bootmagic": true,
@@ -16,7 +19,16 @@
         "nkro": true,
         "quantum_painter": true,
         "wpm": true,
-        "backlight": true
+        "backlight": true,
+        "encoder": true,
+    },
+    "encoder": {
+        "rotary": [
+            {
+                "pin_a": "GP0",
+                "pin_b": "GP1"
+            }
+        ]
     },
     "matrix_pins": {
         "cols": ["GP18", "GP19", "GP20", "GP21", "GP22", "GP26", "GP27", "GP28"],
@@ -26,13 +38,14 @@
     "url": "",
     "usb": {
         "device_version": "1.0.0",
-        "pid": "0x0001",
+        "pid": "0x0002",
         "vid": "0xE55E"
     },
     "layouts": {
         "LAYOUT": {
             "layout": [
-                // ROW , COL
+                // Matrix ROW , COL
+                // Physical row 1
                 {"matrix": [6, 0], "x": 0, "y": 0},
                 {"matrix": [5, 0], "x": 1, "y": 0},
                 {"matrix": [0, 0], "x": 2, "y": 0},
@@ -46,7 +59,7 @@
                 {"matrix": [5, 7], "x": 10, "y": 0},
                 {"matrix": [6, 7], "x": 11, "y": 0},
 
-
+                // Physical row 2
                 {"matrix": [6, 1], "x": 0, "y": 1},
                 {"matrix": [5, 1], "x": 1, "y": 1},
                 {"matrix": [1, 0], "x": 2, "y": 1},
@@ -60,7 +73,7 @@
                 {"matrix": [5, 6], "x": 10, "y": 1},
                 {"matrix": [6, 6], "x": 11, "y": 1},
 
-
+                // Physical row 3
                 {"matrix": [6, 2], "x": 0, "y": 2},
                 {"matrix": [5, 2], "x": 1, "y": 2},
                 {"matrix": [2, 0], "x": 2, "y": 2},
@@ -74,6 +87,7 @@
                 {"matrix": [5, 5], "x": 10, "y": 2},
                 {"matrix": [6, 5], "x": 11, "y": 2},
 
+                // Physical row 4
                 {"matrix": [6, 3], "x": 0, "y": 3},
                 {"matrix": [5, 3], "x": 1, "y": 3},
                 {"matrix": [3, 0], "x": 2, "y": 3},
@@ -87,6 +101,7 @@
                 {"matrix": [5, 4], "x": 10, "y": 3},
                 {"matrix": [6, 4], "x": 11, "y": 3},
 
+                // Physical row 5
                 {"matrix": [7, 0], "x": 1, "y": 4},
                 {"matrix": [4, 0], "x": 2, "y": 4},
                 {"matrix": [4, 1], "x": 3, "y": 4},
@@ -98,9 +113,9 @@
                 {"matrix": [4, 7], "x": 9, "y": 4},
                 {"matrix": [7, 7], "x": 10, "y": 4},
 
+                //Encoder click
                 {"matrix": [7, 3], "x": 3.5, "y": 5}
-                // This is the "click" of the encoder.
-                // Will not be present if the encoder is not present
+
             ]
         }
     }
