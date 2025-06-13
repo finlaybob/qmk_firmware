@@ -8,8 +8,12 @@
 #define BREATHING_PERIOD 10
 #   define BACKLIGHT_PWM_DRIVER PWMD4
 #   define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_A
-#   define BACKLIGHT_PIN GP8
+
 // multiple pins are not supported on hardware PWM
+#   define BACKLIGHT_PIN GP8
+#   define BACKLIGHT_LEVELS 10
+#   define BL_ENABLE_ON_BOOT
+#   define BL_LEVEL_ON_BOOT 5
 #endif
 
 #ifdef ENCODER_ENABLE
