@@ -16,11 +16,10 @@
 #   ifdef POINTING_DEVICE_ENABLE
 #       error "Pointing device and encoder cannot be enabled at the same time."
 #   endif
-#   define ENCODER_A_PIN GP2
-#   define ENCODER_A_PIN GP0
-#   define ENCODER_B_PIN GP1
-#   define ENCODER_RESOLUTION 4
+#   define ENCODER_RESOLUTION 2
+#   define ENCODER_MAP_ENABLE
 #endif
+
 
 #define SPI_DRIVER SPID0
 
