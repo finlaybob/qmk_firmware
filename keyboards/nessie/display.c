@@ -57,10 +57,25 @@ uint32_t cleanup_animation(uint32_t trigger_time, void *cb_arg) {
         icon_animation_token = INVALID_DEFERRED_TOKEN;
     }
     qp_close_image(logo);
+
+#ifdef BACKLIGHT_ENABLE
+#   ifndef BL_ENABLE_ON_BOOT
+    backlight_disable();
+#   endif
+#endif
+
     return 0;
 }
 
 void display_startup(void) {
+
+#ifdef BACKLIGHT_ENABLE
+    backlight_enable();
+# ifdef BL_LEVEL_ON_BOOT
+    backlight_level(BL_LEVEL_ON_BOOT);
+# endif
+#endif
+
 
     nd_hue = 30 / 360.0 * 255;
     nd_sat = 255;
