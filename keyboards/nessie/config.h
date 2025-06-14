@@ -4,26 +4,28 @@
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
 
 #ifdef BACKLIGHT_ENABLE
-#define BACKLIGHT_BREATHING
-#define BREATHING_PERIOD 10
-#   define BACKLIGHT_PWM_DRIVER PWMD4
-#   define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_A
+#    define BACKLIGHT_BREATHING
+#    define BREATHING_PERIOD 10
+#    define BACKLIGHT_PWM_DRIVER PWMD4
+#    define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_A
 
-// multiple pins are not supported on hardware PWM
-#   define BACKLIGHT_PIN GP8
-#   define BACKLIGHT_LEVELS 10
-#   define BL_ENABLE_ON_BOOT
-#   define BL_LEVEL_ON_BOOT 5
+//   multiple pins are not supported on hardware PWM
+#    define BACKLIGHT_PIN GP8
+#    define BACKLIGHT_LEVELS 10
+//   Forces the backlight to be enabled on boot
+#    define BL_ENABLE_ON_BOOT
+//   If BL_ENABLE_ON_BOOT is defined, this sets the backlight level on boot
+//   MUST be between 0 and BACKLIGHT_LEVELS
+#    define BL_LEVEL_ON_BOOT 5
 #endif
 
 #ifdef ENCODER_ENABLE
-#   ifdef POINTING_DEVICE_ENABLE
-#       error "Pointing device and encoder cannot be enabled at the same time."
-#   endif
-#   define ENCODER_RESOLUTION 2
-#   define ENCODER_MAP_ENABLE
+#    ifdef POINTING_DEVICE_ENABLE
+#        error "Pointing device and encoder cannot be enabled at the same time."
+#    endif
+#    define ENCODER_RESOLUTION 2
+#    define ENCODER_MAP_ENABLE
 #endif
-
 
 #define SPI_DRIVER SPID0
 
@@ -36,32 +38,30 @@
 #define SPI_MISO_PIN GP4
 
 #ifdef POINTING_DEVICE_ENABLE
-#   ifdef ENCODER_ENABLE
-#       error "Pointing device and encoder cannot be enabled at the same time."
-#   endif
+#    ifdef ENCODER_ENABLE
+#        error "Pointing device and encoder cannot be enabled at the same time."
+#    endif
 
-#   define TP_CS_PIN GP1
-#   define TP_READY_PIN GP0 // UNUSED
+#    define TP_CS_PIN GP1
+#    define TP_READY_PIN GP0 // UNUSED
 
-#   define POINTING_DEVICE_CS_PIN TP_CS_PIN
+#    define POINTING_DEVICE_CS_PIN TP_CS_PIN
 
 // Ready pin is optional but not able to be used with inertial cursor
-//#   define POINTING_DEVICE_MOTION_PIN TP_READY_PIN
+// #   define POINTING_DEVICE_MOTION_PIN TP_READY_PIN
 
-#   define POINTING_DEVICE_DEBUG
-#   define CIRQUE_PINNACLE_DIAMETER_MM 40
-#   define CIRQUE_PINNACLE_TAP_ENABLE
-#   define POINTING_DEVICE_HIRES_SCROLL_ENABLE
-#   define POINTING_DEVICE_GESTURES_SCROLL_ENABLE
-#   define POINTING_DEVICE_HIRES_SCROLL_MULTIPLIER 20
-#   define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
-#endif //POINTING_DEVICE_ENABLE
-
+#    define POINTING_DEVICE_DEBUG
+#    define CIRQUE_PINNACLE_DIAMETER_MM 40
+#    define CIRQUE_PINNACLE_TAP_ENABLE
+#    define POINTING_DEVICE_HIRES_SCROLL_ENABLE
+#    define POINTING_DEVICE_GESTURES_SCROLL_ENABLE
+#    define POINTING_DEVICE_HIRES_SCROLL_MULTIPLIER 20
+#    define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
+#endif // POINTING_DEVICE_ENABLE
 
 #define DISP_CS_PIN GP5
 #define DISP_DC_PIN GP6
 #define DISP_RST_PIN GP7
-
 
 #define BOOTMAGIC_ROW 6
 #define BOOTMAGIC_COLUMN 0
@@ -77,5 +77,3 @@
 #define TRI_LAYER_LOWER_LAYER _LWR
 #define TRI_LAYER_UPPER_LAYER _RSE
 #define TRI_LAYER_ADJUST_LAYER _ADJ
-
-
