@@ -68,7 +68,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         case KC_HUP:
             if (record->event.pressed) {
                 nd_hue = (nd_hue + 8) % 256; // Cycle hue
-                nd_dirty = true; // Mark the display as dirty to trigger a redraw
+                nd_dirty = true;
             }
             return true;
         case KC_HDN:
@@ -80,16 +80,16 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 else{
                     nd_hue = (nd_hue - 8);
                 }
-                nd_dirty = true; // Mark the display as dirty to trigger a redraw
+                nd_dirty = true;
             }
             return true;
     }
 
+    // If jiggler is currently running, stop when any key is pressed.
     if (record->event.pressed) {
         static deferred_token mouse_jiggle_token = INVALID_DEFERRED_TOKEN;
         static report_mouse_t report             = {0};
         if (mouse_jiggle_token) {
-            // If jiggler is currently running, stop when any key is pressed.
             cancel_deferred_exec(mouse_jiggle_token);
             mouse_jiggle_token = INVALID_DEFERRED_TOKEN;
             report             = (report_mouse_t){}; // Clear the mouse.
@@ -117,7 +117,6 @@ void housekeeping_task_kb(void) {
     }
 #endif
 }
-
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     nd_cur_layer = get_highest_layer(state);
