@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
-#include "fonts/agave.qff.h"
+#include "fonts/default.qff.h"
 
 extern uint16_t         ndt_cursor_y;
 extern painter_device_t nd_surf;
@@ -14,4 +14,6 @@ uint16_t              ndt_width_of(const char* str);
 painter_font_handle_t ndt_load_font(void);
 void                  ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line);
 void                  ndt_cursor_reset(void);
-void                  ndt_carraige_return(void);
+void                  ndt_cr(void);
+void                  ndt_lf(void);
+void                  ndt_crlf(void);

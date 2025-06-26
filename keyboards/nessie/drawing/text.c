@@ -15,8 +15,21 @@ void ndt_cursor_reset(void) {
     ndt_cursor_y = y_min;
 }
 
-void ndt_carraige_return(void) {
+void ndt_cr(void) {
     ndt_cursor_x = x_min;
+}
+
+void ndt_lf(void) {
+    ndt_cursor_y = ndt_cursor_y + (font->line_height);
+
+    if (ndt_cursor_y >= HEIGHT) {
+        return;
+    }
+}
+
+void ndt_crlf() {
+    ndt_cr();
+    ndt_lf();
 }
 
 uint16_t ndt_width_of(const char* str) {
@@ -33,8 +46,6 @@ bool has_newline(const char* s) {
 }
 
 void ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line) {
-    ndt_cursor_y = y_min + (line * font->line_height);
-
     if (ndt_cursor_y >= HEIGHT) {
         return;
     }
@@ -56,6 +67,6 @@ void ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line) {
 }
 
 painter_font_handle_t ndt_load_font(void) {
-    font = qp_load_font_mem(font_agave);
+    font = qp_load_font_mem(font_default);
     return font;
 }
