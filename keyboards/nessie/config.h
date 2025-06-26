@@ -1,4 +1,9 @@
+// Copyright © 2025 Neil Finlay <finbsp@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #pragma once
+
+#define DEV_RIG
 
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
@@ -11,12 +16,16 @@
 
 //   multiple pins are not supported on hardware PWM
 #    define BACKLIGHT_PIN GP8
-#    define BACKLIGHT_LEVELS 10
+
+#    undef BACKLIGHT_LEVELS
+#    define BACKLIGHT_LEVELS 3
+
 //   Forces the backlight to be enabled on boot
 #    define BL_ENABLE_ON_BOOT
+
 //   If BL_ENABLE_ON_BOOT is defined, this sets the backlight level on boot
 //   MUST be between 0 and BACKLIGHT_LEVELS
-#    define BL_LEVEL_ON_BOOT 5
+#    define BL_LEVEL_ON_BOOT BACKLIGHT_LEVELS
 #endif
 
 #ifdef ENCODER_ENABLE
@@ -26,6 +35,13 @@
 #    define ENCODER_RESOLUTION 2
 #    define ENCODER_MAP_ENABLE
 #endif
+
+#undef QUANTUM_PAINTER_NUM_IMAGES
+#define QUANTUM_PAINTER_NUM_IMAGES 32
+
+#define DISP_CS_PIN GP5
+#define DISP_DC_PIN GP6
+#define DISP_RST_PIN GP7
 
 #define SPI_DRIVER SPID0
 
@@ -58,10 +74,6 @@
 #    define POINTING_DEVICE_HIRES_SCROLL_MULTIPLIER 20
 #    define POINTING_DEVICE_GESTURES_CURSOR_GLIDE_ENABLE
 #endif // POINTING_DEVICE_ENABLE
-
-#define DISP_CS_PIN GP5
-#define DISP_DC_PIN GP6
-#define DISP_RST_PIN GP7
 
 #define BOOTMAGIC_ROW 6
 #define BOOTMAGIC_COLUMN 0

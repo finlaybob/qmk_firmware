@@ -20,7 +20,8 @@
         "quantum_painter": true,
         "wpm": true,
         "backlight": true,
-        "encoder": true,
+        "encoder": false,
+        "pointing_device": true,
     },
     "encoder": {
         "rotary": [
