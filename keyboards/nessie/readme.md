@@ -1,20 +1,25 @@
-# nessie
+# Nessie v1.1 [DEV]
 
-![nessie](imgur.com image replace me!)
+![nessie](https://i.imgur.com/4jbQzpj.png)
 
-*A short description of the keyboard/project*
+- 58-key semi split, 5 key thumb row
+- 2.2" ILI9341 display
+- Cirque Trackpad OR EC11 encoder
 
-* Keyboard Maintainer: [Neil Finlay](https://github.com/Neil Finlay)
-* Hardware Supported: *The PCBs, controllers supported*
-* Hardware Availability: *Links to where you can find this hardware*
+<hr/>
+
+- Keyboard Maintainer: [Neil Finlay](https://github.com/finlaybob)
+- Hardware Supported: *Nessie PCB / plates, rpi pico or compatible clone (e.g. waveshare rp2040 plus usb-c)*
+- Hardware Availability: *tbc*
 
 Make example for this keyboard (after setting up your build environment):
 
-    make nessie:default
+    - make nessie:default
+    - qmk compile -kb nessie -km default
 
 Flashing example for this keyboard:
 
-    make nessie:default:flash
+    Reboot into bootloader, copy .uf2 firmware file to storage device
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
 
@@ -23,5 +28,5 @@ See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_to
 Enter the bootloader in 3 ways:
 
 * **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
-* **Physical reset button**: Briefly press the button on the back of the PCB - some may have pads you must short instead
-* **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+* **Physical reset button**: Press the reset button twice in quick succession on the front of the PCB to the right of the screen mounting area
+* **Keycode in layout**: Press the key mapped to `QK_BOOT`. By default, hold both raise and lower layers to get to ADJUST, press the '-' key
