@@ -45,7 +45,11 @@ bool has_newline(const char* s) {
     return false;
 }
 
-void ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line) {
+void ndt_println(const char* str, enum HorizontalAlignment align) {
+    ndt_print(str, align);
+}
+
+void ndt_print(const char* str, enum HorizontalAlignment align) {
     if (ndt_cursor_y >= HEIGHT) {
         return;
     }

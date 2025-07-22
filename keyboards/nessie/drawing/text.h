@@ -12,7 +12,8 @@ enum HorizontalAlignment { align_left, align_centre, align_right };
 
 uint16_t              ndt_width_of(const char* str);
 painter_font_handle_t ndt_load_font(void);
-void                  ndt_print(const char* str, enum HorizontalAlignment align, uint8_t line);
+void                  ndt_print(const char* str, enum HorizontalAlignment align);
+void                  ndt_println(const char* str, enum HorizontalAlignment align);
 void                  ndt_cursor_reset(void);
 void                  ndt_cr(void);
 void                  ndt_lf(void);

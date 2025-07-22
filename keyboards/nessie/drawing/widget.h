@@ -4,7 +4,10 @@
 #include "color.h"
 #include "qp.h"
 
+#define MAX_WIDGETS 8
+
 typedef struct widget_t {
+    uint8_t                id;     // Unique ID for the widget
     uint16_t               x;      // X position of the widget
     uint16_t               y;      // Y position of the widget
     uint16_t               width;  // Width of the widget

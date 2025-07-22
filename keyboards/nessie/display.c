@@ -34,8 +34,9 @@ static deferred_token         icon_animation_token;
 
 static uint8_t layer_widget_y = 50;
 
-static widget_handle_t test_widget;
+static widget_handle_t test_widgets[2];
 
+static uint8_t layer_spacing = 25;
 
 static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)];
 
@@ -126,8 +127,9 @@ void display_startup(void) {
 
     ndt_cursor_reset();
 
-    test_widget = thsl_create_widget(0 , 130, 200, 40, icons.game, "Game Mode", false, font, HSV_WHITE);
+    test_widgets[0] = thsl_create_widget(0, 200, 140, 40, icons.heart, "Widget Test", false, font, HSV_GREEN);
 
+    test_widgets[1] = thsl_create_widget(0, 250, 240, 40, icons.encoder, "Widget Test 2", false, font, HSV_GREEN);
 
     defer_exec(SPLASH_TIMEOUT, cleanup_animation, NULL);
     nd_token = defer_exec(SPLASH_TIMEOUT, render_callback, NULL);
@@ -142,8 +144,7 @@ void clear_screen(void) {
 void display_render(void) {
     // REMEMBER to draw as little as possible as few times as possible
 
-    char    buf[64] = {0};
-    uint8_t line    = 0;
+    char buf[64] = {0};
 
     static uint32_t last_update = 0;
     static bool     first_run   = true;
@@ -151,15 +152,17 @@ void display_render(void) {
     if (first_run) {
         clear_screen();
 
-        thsl_widget_draw(nd_surf, test_widget);
+        thsl_widget_draw(nd_surf, test_widgets[0]);
+        thsl_widget_draw(nd_surf, test_widgets[1]);
 
         // Draw the Nessie logo
         // Draw 24 tall by 48 wide ractangle in the top left corner
         qp_rect(nd_surf, 0, 0, x_min + ndt_width_of("Nessie"), y_min + font->line_height * 2, HSV_WHITE, false);
         // Write nessie and v1.1 inside the rectangle
-        ndt_print("Nessie", align_left, line);
+        ndt_println("Nessie", align_left);
         ndt_crlf();
-        ndt_print("v1.1", align_left, line);
+        ndt_println("v2.0", align_left);
+        ndt_cursor_reset();
     }
 
     bool update_wpm = (timer_elapsed32(last_update) > UPDATE_TIMEOUT) || first_run;
@@ -170,79 +173,86 @@ void display_render(void) {
     if (update_wpm) {
         qp_drawimage(nd_surf, 180, 180, icons.layout);
         snprintf(buf, sizeof(buf), "%03hhu\n", get_current_wpm());
-        ndt_print(buf, align_right, line);
+        ndt_println(buf, align_right);
         nd_dirty = true;
     }
-    ndt_cr();
-    line++;
+    ndt_crlf();
 
 #endif
 
     static uint8_t last_layer = 0;
     if ((nd_cur_layer != last_layer) || first_run) {
         // clear the area where the layer icon will be drawn
-        qp_rect(nd_surf, x_min, layer_widget_y, x_min + 24, layer_widget_y + (24 * 5), HSV_BLACK, true);
+        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), HSV_BLACK, true);
+        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), HSV_WHITE, false);
 
         static uint8_t position = 0;
+
         switch (nd_cur_layer) {
             case _DEF:
             case _GME:
                 position = 0;
-                ndt_print("BASE  ", align_right, line);
+                ndt_println("BASE  ", align_right);
+                ndt_crlf();
                 break;
             case _LWR:
                 position = 1;
-                ndt_print("LOWER ", align_right, line);
+                ndt_println("LOWER ", align_right);
+                ndt_crlf();
                 break;
             case _RSE:
                 position = 2;
-                ndt_print("RAISE ", align_right, line);
+                ndt_println("RAISE ", align_right);
+                ndt_crlf();
                 break;
             case _ADJ:
                 position = 3;
-                ndt_print("ADJUST", align_right, line);
+                ndt_println("ADJUST", align_right);
+                ndt_crlf();
                 break;
             case _CFG:
                 position = 4;
-                ndt_print("CONFIG", align_right, line);
+                ndt_println("CONFIG", align_right);
+                ndt_crlf();
                 break;
         }
 
-        qp_drawimage_recolor(nd_surf, x_min, layer_widget_y + (position * 24), icons.layer, nd_hue, nd_sat, nd_val, HSV_BLACK);
+        qp_drawimage_recolor(nd_surf, x_min + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, nd_hue, nd_sat, nd_val, HSV_BLACK);
 
+        ndt_crlf();
         nd_dirty   = true;
         last_layer = nd_cur_layer;
-        ndt_cr();
     }
-    line++;
 
     static uint8_t last_mode = 0;
     if ((nd_mode != last_mode) || first_run) {
         // Draw the mode icon
         qp_drawimage_recolor(nd_surf, 100, 100, icons.layout, nd_hue, nd_sat, nd_val, HSV_BLACK);
+
         // Print the mode
-        ndt_cr();
         switch (nd_mode) {
             case _DEF:
-                ndt_print("QWERTY  ", align_right, line);
+                ndt_println("QWERTY  ", align_right);
+                ndt_crlf();
                 break;
             case _COL:
-                ndt_print("COLEMAK ", align_right, line);
+                ndt_println("COLEMAK ", align_right);
+                ndt_crlf();
                 break;
             case _GME:
-                ndt_print("(GAME)  ", align_right, line);
+                ndt_println("(GAME)  ", align_right);
+                ndt_crlf();
         }
+        ndt_crlf();
         nd_dirty  = true;
         last_mode = nd_mode;
-        ndt_cr();
     }
-    line++;
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
     static uint32_t last_matrix_scan_rate = 0;
     if ((last_matrix_scan_rate != get_matrix_scan_rate()) || force_redraw) {
         snprintf(buf, sizeof(buf), "Scan   %lu\n", get_matrix_scan_rate());
-        ndt_print(buf, align_right, line);
+        ndt_print(buf, align_right);
         nd_dirty = true;
     }
     last_matrix_scan_rate = get_matrix_scan_rate();
