@@ -3,7 +3,6 @@
 
 #include "display.h"
 #include "color.h"
-#include "drawing/icons/all.h"
 #include "drawing/nessie.qgf.h"
 #include "drawing/nessie-text-logo.qgf.h"
 #include "drawing/logo.qgf.h"
@@ -23,20 +22,30 @@ painter_image_handle_t        text_logo;
 static painter_image_handle_t logo;
 uint8_t                       nd_cur_layer;
 uint8_t                       nd_mode;
-
-uint8_t                       nd_hue;
-uint8_t                       nd_sat;
-uint8_t                       nd_val;
-
 bool                          nd_dirty;
-static deferred_token         nd_token;
-static deferred_token         icon_animation_token;
+static deferred_token         nd_render_token;
 
 static uint8_t layer_widget_y = 50;
 
-static widget_handle_t test_widgets[2];
+typedef enum {
+    TITLE,
+    LAYER,
+    MODE,
+#ifdef DEBUG_MATRIX_SCAN_RATE
+    MATRIX,
+#endif
+
+#ifdef WPM_ENABLE
+    WPM,
+#endif
+
+    COUNT
+} widget_id_t;
+
+static widget_t *widgets[COUNT];
 
 static uint8_t layer_spacing = 25;
+static uint8_t widget_spacing = 50;
 
 static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)];
 
@@ -45,55 +54,31 @@ uint32_t render_callback(uint32_t trigger_time, void *cb_arg) {
     return 16;
 }
 
-
-
 // Draw the splash screen directly to the LCD
 void draw_splash(void) {
-    // qp_rect(nd_lcd, 0, 0, 239, 319, HSV_BLACK, true);
-    // qp_rect(nd_lcd, 0, 0, 239, 319, HSV_WHITE, false);
-
     logo = qp_load_image_mem(gfx_nessie_scene);
 
-    // text_logo = qp_load_image_mem(gfx_nessie_text_logo);
-
-    // icon_animation_token = qp_animate(nd_lcd, X_MID - (logo->width / 2 ), (Y_MID/2) - (logo->height / 2), logo);
-
-    // qp_drawimage(nd_lcd, X_MID - (text_logo->width / 2), y_max - (Y_MID/2) - (text_logo->height), text_logo);
     qp_drawimage(nd_surf, 0, 0, logo);
     qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
-
-    //qp_drawtext(nd_lcd, X_MID + 30 - (qp_textwidth(font, "Nessie") / 2), Y_MID + 10 - font->line_height, font, "Nessie");
-
 }
 
-uint32_t cleanup_animation(uint32_t trigger_time, void *cb_arg) {
-    if (icon_animation_token) {
-        qp_stop_animation(icon_animation_token);
-        icon_animation_token = INVALID_DEFERRED_TOKEN;
-    }
+uint32_t splash_cleanup(uint32_t trigger_time, void *cb_arg) {
     qp_close_image(logo);
-
 #ifdef BACKLIGHT_ENABLE
-#   ifndef BL_ENABLE_ON_BOOT
-    backlight_disable();
-#   endif
+#    ifdef BL_LEVEL_ON_BOOT
+    backlight_level(BL_LEVEL_ON_BOOT);
+#    endif
 #endif
-
     return 0;
 }
 
 void display_startup(void) {
 
 #ifdef BACKLIGHT_ENABLE
+    // always enable the backlight on startup for splash
     backlight_enable();
-# ifdef BL_LEVEL_ON_BOOT
-    backlight_level(BL_LEVEL_ON_BOOT);
-# endif
+    backlight_level(BACKLIGHT_LEVELS);
 #endif
-
-    nd_hue = 30 / 360.0 * 255;
-    nd_sat = 255;
-    nd_val = 255;
 
     nd_lcd = qp_ili9341_make_spi_device(WIDTH, HEIGHT, DISP_CS_PIN, DISP_DC_PIN, DISP_RST_PIN, 4, 0);
 
@@ -107,36 +92,43 @@ void display_startup(void) {
     // Turn on the LCD and clear the display
 
     qp_power(nd_lcd, true);
-
     draw_splash();
-
     qp_flush(nd_lcd);
 
     wait_ms(100);
-    // nessie = qp_load_image_mem(gfx_nessie);
-    // qp_drawimage_recolor(nd_surf, X_MID - (nessie->width / 2), HEIGHT - (nessie->height), nessie, HSV_GREEN, HSV_BLACK);
-    // qp_drawimage(nd_surf, X_MID - (text_logo->width / 2), y_max - (text_logo->height), text_logo);
 
-    // unload the splash screen, it's massive and we don't need it anymore
     qp_close_image(logo);
 
-    // load the icons
     icons_init();
-
     nd_dirty = true;
 
-    ndt_cursor_reset();
+    uint8_t current_height = 0;
 
-    test_widgets[0] = thsl_create_widget(0, 200, 140, 40, icons.heart, "Widget Test", false, font, HSV_GREEN);
+    widgets[TITLE] = thsl_create_widget(0, current_height + 1, x_max, 32, icons.screen, "Nessie v2", false, font, ND_THEME_ACCENT_A);
+    current_height += widget_spacing;
 
-    test_widgets[1] = thsl_create_widget(0, 250, 240, 40, icons.encoder, "Widget Test 2", false, font, HSV_GREEN);
+    widgets[LAYER] = thsl_create_widget(X_MID / 2, current_height, 240 / 3, 36, icons.cog, "Mode", false, font, ND_THEME_ACCENT_A);
+    current_height += widget_spacing;
 
-    defer_exec(SPLASH_TIMEOUT, cleanup_animation, NULL);
-    nd_token = defer_exec(SPLASH_TIMEOUT, render_callback, NULL);
+    widgets[MODE] = thsl_create_widget(X_MID / 2, current_height, 240 / 3, 36, icons.layout, "QWERTY", false, font, ND_THEME_ACCENT_A);
+    current_height += widget_spacing;
+
+#ifdef DEBUG_MATRIX_SCAN_RATE
+    widgets[MATRIX] = thsl_create_widget(X_MID / 2, current_height, 240 / 2, 36, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_ACCENT_A);
+    current_height += widget_spacing;
+#endif
+
+#ifdef WPM_ENABLE
+    widgets[WPM] = thsl_create_widget(X_MID / 2, current_height, 240 / 2, 36, icons.speed, "WPM", false, font, ND_THEME_ACCENT_A);
+    current_height += widget_spacing;
+#endif
+
+    defer_exec(SPLASH_TIMEOUT, splash_cleanup, NULL);
+    nd_render_token = defer_exec(SPLASH_TIMEOUT, render_callback, NULL);
 }
 
 void clear_screen(void) {
-    qp_rect(nd_surf, 0, 0, WIDTH - 1, HEIGHT - 1, HSV_BLACK, true);
+    qp_rect(nd_surf, 0, 0, WIDTH - 1, HEIGHT - 1, ND_THEME_BG, true);
     nd_dirty = true;
     ndt_cursor_reset();
 }
@@ -151,40 +143,23 @@ void display_render(void) {
 
     if (first_run) {
         clear_screen();
-
-        thsl_widget_draw(nd_surf, test_widgets[0]);
-        thsl_widget_draw(nd_surf, test_widgets[1]);
-
-        // Draw the Nessie logo
-        // Draw 24 tall by 48 wide ractangle in the top left corner
-        qp_rect(nd_surf, 0, 0, x_min + ndt_width_of("Nessie"), y_min + font->line_height * 2, HSV_WHITE, false);
-        // Write nessie and v1.1 inside the rectangle
-        ndt_println("Nessie", align_left);
-        ndt_crlf();
-        ndt_println("v2.0", align_left);
-        ndt_cursor_reset();
     }
 
     bool update_wpm = (timer_elapsed32(last_update) > UPDATE_TIMEOUT) || first_run;
-    ndt_cursor_reset();
 
 #ifdef WPM_ENABLE
     // Just update the WPM every second
     if (update_wpm) {
-        qp_drawimage(nd_surf, 180, 180, icons.layout);
-        snprintf(buf, sizeof(buf), "%03hhu\n", get_current_wpm());
-        ndt_println(buf, align_right);
-        nd_dirty = true;
+        snprintf(buf, sizeof(buf), "%03hhu", get_current_wpm());
+        thsl_widget_set_label(widgets[WPM], buf);
     }
-    ndt_crlf();
-
 #endif
 
     static uint8_t last_layer = 0;
     if ((nd_cur_layer != last_layer) || first_run) {
-        // clear the area where the layer icon will be drawn
-        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), HSV_BLACK, true);
-        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), HSV_WHITE, false);
+        // clear the area where the layer bar will be drawn
+        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), ND_THEME_BG, true);
+        qp_line(nd_surf, x_min, layer_widget_y + (layer_spacing / 2), x_min, layer_widget_y + (layer_spacing * 5) + (layer_spacing / 2), ND_THEME_ACCENT_A);
 
         static uint8_t position = 0;
 
@@ -192,34 +167,33 @@ void display_render(void) {
             case _DEF:
             case _GME:
                 position = 0;
-                ndt_println("BASE  ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[LAYER], "BASE   ");
                 break;
             case _LWR:
                 position = 1;
-                ndt_println("LOWER ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[LAYER], "LOWER  ");
                 break;
             case _RSE:
                 position = 2;
-                ndt_println("RAISE ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[LAYER], "RAISE  ");
                 break;
             case _ADJ:
                 position = 3;
-                ndt_println("ADJUST", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[LAYER], "ADJUST ");
                 break;
             case _CFG:
                 position = 4;
-                ndt_println("CONFIG", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[LAYER], "CONFIG ");
                 break;
         }
 
-        qp_drawimage_recolor(nd_surf, x_min + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, nd_hue, nd_sat, nd_val, HSV_BLACK);
+        // draw the layer notches
+        for (uint8_t i = 0; i < 5; i++) {
+            uint8_t y = layer_widget_y + (i * layer_spacing) + (layer_spacing / 2);
+            qp_line(nd_surf, x_min, y, x_min + 2, y, ND_THEME_ACCENT_A);
+        }
+        qp_drawimage_recolor(nd_surf, x_min + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, ND_THEME_ACCENT_A, ND_THEME_BG);
 
-        ndt_crlf();
         nd_dirty   = true;
         last_layer = nd_cur_layer;
     }
@@ -227,43 +201,45 @@ void display_render(void) {
     static uint8_t last_mode = 0;
     if ((nd_mode != last_mode) || first_run) {
         // Draw the mode icon
-        qp_drawimage_recolor(nd_surf, 100, 100, icons.layout, nd_hue, nd_sat, nd_val, HSV_BLACK);
+        qp_drawimage_recolor(nd_surf, 100, 100, icons.layout, nd_hue, nd_sat, nd_val, ND_THEME_BG);
 
         // Print the mode
         switch (nd_mode) {
             case _DEF:
-                ndt_println("QWERTY  ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[MODE], "QWERTY  ");
                 break;
             case _COL:
-                ndt_println("COLEMAK ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[MODE], "COLEMAK ");
                 break;
             case _GME:
-                ndt_println("(GAME)  ", align_right);
-                ndt_crlf();
+                thsl_widget_set_label(widgets[MODE], "(GAME)  ");
         }
-        ndt_crlf();
-        nd_dirty  = true;
         last_mode = nd_mode;
     }
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
     static uint32_t last_matrix_scan_rate = 0;
-    if ((last_matrix_scan_rate != get_matrix_scan_rate()) || force_redraw) {
-        snprintf(buf, sizeof(buf), "Scan   %lu\n", get_matrix_scan_rate());
-        ndt_print(buf, align_right);
-        nd_dirty = true;
+    if ((last_matrix_scan_rate != get_matrix_scan_rate())) {
+        snprintf(buf, sizeof(buf), "%luhz", get_matrix_scan_rate());
+        thsl_widget_set_label(widgets[MATRIX], buf);
     }
     last_matrix_scan_rate = get_matrix_scan_rate();
-    ndt_carraige_return();
-
-    line++;
 #endif
 
     if (update_wpm || first_run) {
         // reset the timer
         last_update = timer_read32();
+    }
+
+    // Draw the widgets
+    for (uint8_t i = 0; i < COUNT; i++) {
+        if (widgets[i] && widgets[i]->dirty) {
+            // if any widget is dirty, we need to redraw the screen
+            nd_dirty = true;
+
+            // Draw the widget
+            thsl_widget_draw(nd_surf, widgets[i]);
+        }
     }
 
     // Swap buffers

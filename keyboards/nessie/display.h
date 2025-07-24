@@ -23,3 +23,5 @@ bool                         nd_dirty;
 
 void display_startup(void);
 void display_render(void);
+
+

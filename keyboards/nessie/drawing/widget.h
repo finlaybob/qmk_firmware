@@ -19,10 +19,16 @@ typedef struct widget_t {
     uint8_t                hue;    // Hue for the widget background
     uint8_t                sat;    // Saturation for the widget background
     uint8_t                val;    // Value for the widget background
+    bool                   dirty;  // Whether the widget needs to be redrawn
 } __attribute__((packed)) __attribute__((aligned(4))) widget_t;
 
-typedef const widget_t *widget_handle_t;
-
-widget_handle_t thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height,painter_image_handle_t icon, const char *label,bool border, painter_font_handle_t font,uint8_t hue, uint8_t sat, uint8_t val);
-void thsl_widget_destroy(widget_handle_t widget);
-void thsl_widget_draw(painter_device_t device, widget_handle_t widget);
+widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height, painter_image_handle_t icon, const char *label, bool border, painter_font_handle_t font, uint8_t hue, uint8_t sat, uint8_t val);
+void      thsl_widget_destroy(widget_t *widget);
+void      thsl_widget_draw(painter_device_t device, widget_t *widget);
+void      thsl_widget_set_label(widget_t *widget, const char *label);
+void      thsl_widget_set_icon(widget_t *widget, painter_image_handle_t icon);
+void      thsl_widget_set_position(widget_t *widget, uint16_t x, uint16_t y);
+void      thsl_widget_set_size(widget_t *widget, uint16_t width, uint16_t height);
+void      thsl_widget_set_color(widget_t *widget, uint8_t hue, uint8_t sat, uint8_t val);
+void      thsl_widget_set_border(widget_t *widget, bool border);
+void      thsl_widget_set_font(widget_t *widget, painter_font_handle_t font);

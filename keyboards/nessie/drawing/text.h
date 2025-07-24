@@ -3,6 +3,7 @@
 
 #pragma once
 #include "fonts/default.qff.h"
+#include "theme.h"
 
 extern uint16_t         ndt_cursor_y;
 extern painter_device_t nd_surf;
