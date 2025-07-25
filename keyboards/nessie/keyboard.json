@@ -1,7 +1,7 @@
 {
-    "manufacturer": "finlaybob (Neil Finlay)",
+    "manufacturer": "finlaybob (Neil Finlay / thslkeys)",
     "keyboard_name": "Nessie 1.1 [dev]",
-    "maintainer": "finlaybob (Neil Finlay)",
+    "maintainer": "finlaybob (Neil Finlay / thslkeys)",
     "processor": "RP2040",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",

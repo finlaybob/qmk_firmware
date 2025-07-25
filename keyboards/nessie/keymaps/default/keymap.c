@@ -1,4 +1,4 @@
-// Copyright ©️ 2024 Neil Finlay
+// Copyright ©️ 2024 Neil Finlay / thslkeys
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include QMK_KEYBOARD_H
 

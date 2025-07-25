@@ -1,4 +1,4 @@
-// Copyright © 2025 Neil Finlay <finbsp@gmail.com>
+// Copyright © 2025 Neil Finlay / thslkeys <finbsp@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
