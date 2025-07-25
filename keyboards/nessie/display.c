@@ -98,24 +98,24 @@ void display_startup(void) {
 
     uint8_t next_y_position = 0;
 
-    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, WIDTH, 32, icons.screen, "Nessie v2", false, font, ND_THEME_FG, true);
+    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, 32, icons.screen, "Nessie v2", false, font, ND_THEME_FG, true);
     next_y_position += widget_spacing;
 
     uint8_t xpos = 45;
 
-    widgets[LAYER] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.cog, "Mode", false, font, ND_THEME_FG, true);
+    widgets[LAYER] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.cog, "Mode", false, font, ND_THEME_FG, true);
     next_y_position += widget_spacing;
 
-    widgets[MODE] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.layout, "QWERTY", false, font, ND_THEME_FG, true);
+    widgets[MODE] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.layout, "QWERTY", false, font, ND_THEME_FG, true);
     next_y_position += widget_spacing;
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
-    widgets[MATRIX] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_FG, true);
+    widgets[MATRIX] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_FG, true);
     next_y_position += widget_spacing;
 #endif
 
 #ifdef WPM_ENABLE
-    widgets[WPM] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.speed, "WPM", false, font, ND_THEME_FG, true);
+    widgets[WPM] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.speed, "WPM", false, font, ND_THEME_FG, true);
     next_y_position += widget_spacing;
 #endif
 
