@@ -6,7 +6,7 @@
 static widget_t widget[MAX_WIDGETS];
 static uint8_t  widget_count = 0;
 
-widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height, painter_image_handle_t icon, const char *label, bool border, painter_font_handle_t font, uint8_t hue, uint8_t sat, uint8_t val) {
+widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height, painter_image_handle_t icon, const char *label, bool border, painter_font_handle_t font, uint8_t hue, uint8_t sat, uint8_t val, bool fixed_size) {
     if (widget_count >= MAX_WIDGETS) {
         return NULL; // No more widgets can be created
     }
@@ -28,6 +28,7 @@ widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t he
     widget[widget_count].sat    = sat;
     widget[widget_count].val    = val;
     widget[widget_count].dirty  = true; // Mark the widget as dirty for redrawing
+    widget[widget_count].fixed_size = fixed_size;
 
     widget_count++;
     return &widget[widget_count - 1];
@@ -75,9 +76,13 @@ void thsl_widget_set_label(widget_t *widget, const char *label) {
         widget->label = label;
     }
 
-    // Update width based on text length
-    widget->width = qp_textwidth(widget->font, label) + 42;
-
     // Mark the widget as dirty for redrawing
     widget->dirty = true;
+
+    // If the widget has a fixed size, do not update width
+    if (widget->fixed_size) {
+        return;
+    }
+    // Update width based on text length
+    widget->width = qp_textwidth(widget->font, label) + 42;
 }

@@ -18,8 +18,6 @@ static deferred_token         nd_render_token;
 painter_font_handle_t font;
 painter_device_t      nd_surf;
 
-static uint8_t layer_widget_y = 45;
-
 typedef enum {
     TITLE,
     LAYER,
@@ -38,7 +36,8 @@ typedef enum {
 static widget_t *widgets[COUNT];
 
 static uint8_t layer_spacing = 25;
-static uint8_t widget_spacing = 50;
+static uint8_t layer_widget_y = 45;
+static uint8_t widget_spacing = 42;
 
 static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)];
 
@@ -97,25 +96,27 @@ void display_startup(void) {
     icons_init();
     nd_dirty = true;
 
-    uint8_t current_height = 0;
+    uint8_t next_y_position = 0;
 
-    widgets[TITLE] = thsl_create_widget(0, current_height + 1, x_max, 32, icons.screen, "Nessie v2", false, font, ND_THEME_ACCENT_A);
-    current_height += widget_spacing;
+    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, WIDTH, 32, icons.screen, "Nessie v2", false, font, ND_THEME_FG, true);
+    next_y_position += widget_spacing;
 
-    widgets[LAYER] = thsl_create_widget(X_MID / 2, current_height, 240 / 3, 36, icons.cog, "Mode", false, font, ND_THEME_ACCENT_A);
-    current_height += widget_spacing;
+    uint8_t xpos = 45;
 
-    widgets[MODE] = thsl_create_widget(X_MID / 2, current_height, 240 / 3, 36, icons.layout, "QWERTY", false, font, ND_THEME_ACCENT_A);
-    current_height += widget_spacing;
+    widgets[LAYER] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.cog, "Mode", false, font, ND_THEME_FG, true);
+    next_y_position += widget_spacing;
+
+    widgets[MODE] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.layout, "QWERTY", false, font, ND_THEME_FG, true);
+    next_y_position += widget_spacing;
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
-    widgets[MATRIX] = thsl_create_widget(X_MID / 2, current_height, 240 / 2, 36, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_ACCENT_A);
-    current_height += widget_spacing;
+    widgets[MATRIX] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_FG, true);
+    next_y_position += widget_spacing;
 #endif
 
 #ifdef WPM_ENABLE
-    widgets[WPM] = thsl_create_widget(X_MID / 2, current_height, 240 / 2, 36, icons.speed, "WPM", false, font, ND_THEME_ACCENT_A);
-    current_height += widget_spacing;
+    widgets[WPM] = thsl_create_widget(xpos, next_y_position, 240 - xpos, 32, icons.speed, "WPM", false, font, ND_THEME_FG, true);
+    next_y_position += widget_spacing;
 #endif
 
     defer_exec(SPLASH_TIMEOUT, splash_cleanup, NULL);
@@ -145,7 +146,7 @@ void display_render(void) {
 #ifdef WPM_ENABLE
     // Just update the WPM every second
     if (update_wpm) {
-        snprintf(buf, sizeof(buf), "%03hhu ", get_current_wpm());
+        snprintf(buf, sizeof(buf), "%03hhu wpm ", get_current_wpm());
         thsl_widget_set_label(widgets[WPM], buf);
     }
 #endif

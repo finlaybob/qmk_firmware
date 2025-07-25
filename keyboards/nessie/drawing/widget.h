@@ -20,9 +20,11 @@ typedef struct widget_t {
     uint8_t                sat;    // Saturation for the widget background
     uint8_t                val;    // Value for the widget background
     bool                   dirty;  // Whether the widget needs to be redrawn
+    bool                   fixed_size; // Whether the widget has a fixed size or can resize based on content
+
 } __attribute__((packed)) __attribute__((aligned(4))) widget_t;
 
-widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height, painter_image_handle_t icon, const char *label, bool border, painter_font_handle_t font, uint8_t hue, uint8_t sat, uint8_t val);
+widget_t *thsl_create_widget(uint16_t x, uint16_t y, uint16_t width, uint16_t height, painter_image_handle_t icon, const char *label, bool border, painter_font_handle_t font, uint8_t hue, uint8_t sat, uint8_t val, bool fixed_size);
 void      thsl_widget_destroy(widget_t *widget);
 void      thsl_widget_draw(painter_device_t device, widget_t *widget);
 void      thsl_widget_set_label(widget_t *widget, const char *label);
