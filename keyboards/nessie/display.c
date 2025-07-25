@@ -2,16 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "display.h"
-#include "color.h"
-#include "drawing/nessie.qgf.h"
-#include "drawing/nessie-text-logo.qgf.h"
-#include "drawing/logo.qgf.h"
-#include "drawing/nessie_scene.qgf.h"
-#include "drawing/text.h"
-#include "icons.h"
-#include "drawing/widget.h"
-
-#include "drawing/dimensions.h"
 
 #include "enums.h"
 #include "quantum.h"
@@ -19,13 +9,16 @@
 painter_device_t              nd_lcd;
 painter_image_handle_t        nessie;
 painter_image_handle_t        text_logo;
-static painter_image_handle_t logo;
+static painter_image_handle_t logo, text;
 uint8_t                       nd_cur_layer;
 uint8_t                       nd_mode;
 bool                          nd_dirty;
 static deferred_token         nd_render_token;
 
-static uint8_t layer_widget_y = 50;
+painter_font_handle_t font;
+painter_device_t      nd_surf;
+
+static uint8_t layer_widget_y = 45;
 
 typedef enum {
     TITLE,
@@ -56,9 +49,12 @@ uint32_t render_callback(uint32_t trigger_time, void *cb_arg) {
 
 // Draw the splash screen directly to the LCD
 void draw_splash(void) {
-    logo = qp_load_image_mem(gfx_nessie_scene);
+    text = qp_load_image_mem(gfx_splash_text);
+    logo = qp_load_image_mem(gfx_splash_logo);
 
-    qp_drawimage(nd_surf, 0, 0, logo);
+    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, ND_THEME_ACCENT_A, true);
+    qp_drawimage(nd_surf, X_MID - (text->width / 2), 10, text);
+    qp_drawimage(nd_surf, X_MID - (logo->width / 2), y_max - logo->height - 2, logo);
     qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
 }
 
@@ -75,14 +71,13 @@ uint32_t splash_cleanup(uint32_t trigger_time, void *cb_arg) {
 void display_startup(void) {
 
 #ifdef BACKLIGHT_ENABLE
-    // always enable the backlight on startup for splash
+    // always enable the backlight on startup for splash screen
     backlight_enable();
     backlight_level(BACKLIGHT_LEVELS);
 #endif
 
     nd_lcd = qp_ili9341_make_spi_device(WIDTH, HEIGHT, DISP_CS_PIN, DISP_DC_PIN, DISP_RST_PIN, 4, 0);
-
-    font = ndt_load_font();
+    font   = qp_load_font_mem(font_default);
 
     // Initialise the LCD
     qp_init(nd_lcd, QP_ROTATION_0);
@@ -130,13 +125,13 @@ void display_startup(void) {
 void clear_screen(void) {
     qp_rect(nd_surf, 0, 0, WIDTH - 1, HEIGHT - 1, ND_THEME_BG, true);
     nd_dirty = true;
-    ndt_cursor_reset();
 }
 
 void display_render(void) {
     // REMEMBER to draw as little as possible as few times as possible
 
-    char buf[64] = {0};
+    char buf[64];
+    buf[0] = '\0';
 
     static uint32_t last_update = 0;
     static bool     first_run   = true;
@@ -150,7 +145,7 @@ void display_render(void) {
 #ifdef WPM_ENABLE
     // Just update the WPM every second
     if (update_wpm) {
-        snprintf(buf, sizeof(buf), "%03hhu", get_current_wpm());
+        snprintf(buf, sizeof(buf), "%03hhu ", get_current_wpm());
         thsl_widget_set_label(widgets[WPM], buf);
     }
 #endif
@@ -200,9 +195,6 @@ void display_render(void) {
 
     static uint8_t last_mode = 0;
     if ((nd_mode != last_mode) || first_run) {
-        // Draw the mode icon
-        qp_drawimage_recolor(nd_surf, 100, 100, icons.layout, nd_hue, nd_sat, nd_val, ND_THEME_BG);
-
         // Print the mode
         switch (nd_mode) {
             case _DEF:
@@ -220,7 +212,7 @@ void display_render(void) {
 #ifdef DEBUG_MATRIX_SCAN_RATE
     static uint32_t last_matrix_scan_rate = 0;
     if ((last_matrix_scan_rate != get_matrix_scan_rate())) {
-        snprintf(buf, sizeof(buf), "%luhz", get_matrix_scan_rate());
+        snprintf(buf, sizeof(buf), "%luhz ", get_matrix_scan_rate());
         thsl_widget_set_label(widgets[MATRIX], buf);
     }
     last_matrix_scan_rate = get_matrix_scan_rate();
@@ -244,7 +236,7 @@ void display_render(void) {
 
     // Swap buffers
     if (nd_dirty || first_run) {
-        qp_rect(nd_surf, 0, 0, x_max, 319, nd_hue,nd_sat,nd_val, false);
+        qp_rect(nd_surf, 0, 0, x_max, 319, ND_THEME_FG, false);
         qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
         nd_dirty = false;
     }

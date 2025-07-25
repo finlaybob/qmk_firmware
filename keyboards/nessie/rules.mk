@@ -13,9 +13,8 @@ SRC += fonts/default.qff.c
 SRC += display.c
 SRC += drawing/nessie.qgf.c
 SRC += drawing/logo.qgf.c
-SRC += drawing/text.c
-SRC += drawing/nessie-text-logo.qgf.c
-SRC += drawing/nessie_scene.qgf.c
+SRC += drawing/splash_text.qgf.c
+SRC += drawing/splash_logo.qgf.c
 SRC += drawing/widget.c
 
 include keyboards/nessie/rules/icons.mk
