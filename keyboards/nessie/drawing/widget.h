@@ -1,4 +1,4 @@
-// Copyright © 2025 Neil Finlay
+// Copyright © 2025 Neil Finlay / thslkeys
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "color.h"

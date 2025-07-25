@@ -8,7 +8,7 @@
 
 <hr/>
 
-- Keyboard Maintainer: [Neil Finlay](https://github.com/finlaybob)
+- Keyboard Maintainer: [Neil Finlay / thslkeys](https://github.com/finlaybob)
 - Hardware Supported: *Nessie PCB / plates, rpi pico or compatible clone (e.g. waveshare rp2040 plus usb-c)*
 - Hardware Availability: *tbc*
 

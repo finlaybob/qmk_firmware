@@ -1,4 +1,4 @@
-// Copyright ©️ 2024 Neil Finlay
+// Copyright © 2025 Neil Finlay / thslkeys
 
 #pragma once
 
