@@ -66,20 +66,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         case KC_HUP:
-            if (record->event.pressed) {
-                nd_hue   = (nd_hue + HUE_STEP) % 256; // Cycle hue
-                nd_dirty = true;
-            }
+            // if (record->event.pressed) {
+            //     nd_hue   = (nd_hue + HUE_STEP) % 256; // Cycle hue
+            //     nd_dirty = true;
+            // }
             return true;
         case KC_HDN:
-            if (record->event.pressed) {
-                if (nd_hue - HUE_STEP <= 0) {
-                    nd_hue = 256 - nd_hue - HUE_STEP;
-                } else {
-                    nd_hue = (nd_hue - HUE_STEP);
-                }
-                nd_dirty = true;
-            }
+            // if (record->event.pressed) {
+            //     if (nd_hue - HUE_STEP <= 0) {
+            //         nd_hue = 256 - nd_hue - HUE_STEP;
+            //     } else {
+            //         nd_hue = (nd_hue - HUE_STEP);
+            //     }
+            //     nd_dirty = true;
+            // }
             return true;
     }
 
