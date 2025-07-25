@@ -2,10 +2,10 @@
 
 #pragma once
 
-#define B_WIDTH 4
-#define WIDTH 240
+#define B_WIDTH 2
+#define WIDTH 238
 #define X_MID WIDTH / 2
-#define HEIGHT 320
+#define HEIGHT 318
 #define Y_MID HEIGHT / 2
 #define y_min B_WIDTH
 #define y_max HEIGHT - B_WIDTH

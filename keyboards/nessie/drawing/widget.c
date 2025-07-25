@@ -53,8 +53,9 @@ void thsl_widget_draw(painter_device_t device, widget_t *widget) {
 
     // Draw the icon on the left side of the widget
     if (widget->icon) {
-        uint16_t icon_x = widget->x + 5;
-        uint16_t icon_y = widget->y + (widget->height / 2) - (widget->icon->height / 2);
+        uint8_t  pos    = (widget->height / 2) - (widget->icon->height / 2);
+        uint16_t icon_x = widget->x + pos;
+        uint16_t icon_y = widget->y + pos;
         qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, HSV_BLACK);
     }
 
