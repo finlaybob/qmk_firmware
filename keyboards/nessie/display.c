@@ -7,11 +7,9 @@
 #include "quantum.h"
 
 painter_device_t              nd_lcd;
-painter_image_handle_t        nessie;
-painter_image_handle_t        text_logo;
 static painter_image_handle_t logo, text;
 uint8_t                       nd_cur_layer;
-uint8_t                       nd_mode;
+uint8_t                       nd_cur_mode;
 bool                          nd_dirty;
 static deferred_token         nd_render_token;
 
@@ -22,6 +20,7 @@ typedef enum {
     TITLE,
     LAYER,
     MODE,
+
 #ifdef DEBUG_MATRIX_SCAN_RATE
     MATRIX,
 #endif
@@ -35,9 +34,14 @@ typedef enum {
 
 static widget_t *widgets[COUNT];
 
-static uint8_t layer_spacing = 25;
-static uint8_t layer_widget_y = 45;
-static uint8_t widget_spacing = 42;
+static const uint8_t layer_spacing  = 25;
+static const uint8_t widget_height = 24;
+static const uint8_t layer_widget_x = WIDTH - 48;
+
+static const uint8_t widget_spacing = 4;
+static const uint8_t widget_offset = widget_spacing + widget_height;
+
+static const uint8_t layer_widget_y = (widget_height*2) + widget_offset + 2;
 
 static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)];
 
@@ -68,7 +72,6 @@ uint32_t splash_cleanup(uint32_t trigger_time, void *cb_arg) {
 }
 
 void display_startup(void) {
-
 #ifdef BACKLIGHT_ENABLE
     // always enable the backlight on startup for splash screen
     backlight_enable();
@@ -98,25 +101,30 @@ void display_startup(void) {
 
     uint8_t next_y_position = 0;
 
-    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, 32, icons.screen, "Nessie v2", false, font, ND_THEME_FG, true);
-    next_y_position += widget_spacing;
+    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, widget_height*2, NULL, "thslkeys Nessie v2", true, font, ND_THEME_FG, false);
+    // move down
+    next_y_position += (widget_height*2) + 2;
 
-    uint8_t xpos = 45;
+    // move leftmost
+    uint8_t column = 0;
+    widgets[MODE] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "QWERTY", true, font, ND_THEME_FG, true);
+    // don't move down, just move right
+    column += X_MID;
 
-    widgets[LAYER] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.cog, "Mode", false, font, ND_THEME_FG, true);
-    next_y_position += widget_spacing;
+    widgets[LAYER] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.cog, "Mode", true, font, ND_THEME_FG, true);
+    // move leftmost again
+    column = 0;
+    // move down
+    next_y_position += widget_offset;
 
-    widgets[MODE] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.layout, "QWERTY", false, font, ND_THEME_FG, true);
-    next_y_position += widget_spacing;
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
-    widgets[MATRIX] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.matrix, "Matrix Scan Rate", false, font, ND_THEME_FG, true);
-    next_y_position += widget_spacing;
+    widgets[MATRIX] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.matrix, "Matrix Scan Rate", true, font, ND_THEME_FG, true);
+    next_y_position += widget_offset;
 #endif
-
 #ifdef WPM_ENABLE
-    widgets[WPM] = thsl_create_widget(xpos, next_y_position, x_max - xpos, 32, icons.speed, "WPM", false, font, ND_THEME_FG, true);
-    next_y_position += widget_spacing;
+    widgets[WPM] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.speed, "WPM", true, font, ND_THEME_FG, true);
+    next_y_position += widget_offset;
 #endif
 
     defer_exec(SPLASH_TIMEOUT, splash_cleanup, NULL);
@@ -124,18 +132,18 @@ void display_startup(void) {
 }
 
 void clear_screen(void) {
-    qp_rect(nd_surf, 0, 0, WIDTH - 1, HEIGHT - 1, ND_THEME_BG, true);
+    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, ND_THEME_BG, true);
     nd_dirty = true;
 }
 
 void display_render(void) {
     // REMEMBER to draw as little as possible as few times as possible
 
-    char buf[64];
-    buf[0] = '\0';
-
+    static char buf[64];
     static uint32_t last_update = 0;
     static bool     first_run   = true;
+    memset(buf, 0, sizeof(buf));
+
 
     if (first_run) {
         clear_screen();
@@ -153,9 +161,11 @@ void display_render(void) {
 
     static uint8_t last_layer = 0;
     if ((nd_cur_layer != last_layer) || first_run) {
-        // clear the area where the layer bar will be drawn
-        qp_rect(nd_surf, x_min, layer_widget_y, x_min + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), ND_THEME_BG, true);
-        qp_line(nd_surf, x_min, layer_widget_y + (layer_spacing / 2), x_min, layer_widget_y + (layer_spacing * 5) + (layer_spacing / 2), ND_THEME_ACCENT_A);
+
+
+        // clear the area where the layer indicator will be drawn
+        qp_rect(nd_surf, layer_widget_x, layer_widget_y, layer_widget_x + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), ND_THEME_BG, true);
+        qp_line(nd_surf, layer_widget_x, layer_widget_y + (layer_spacing / 2), layer_widget_x, layer_widget_y + (layer_spacing * 4) + (layer_spacing / 2), ND_THEME_ACCENT_A);
 
         static uint8_t position = 0;
 
@@ -186,28 +196,33 @@ void display_render(void) {
         // draw the layer notches
         for (uint8_t i = 0; i < 5; i++) {
             uint8_t y = layer_widget_y + (i * layer_spacing) + (layer_spacing / 2);
-            qp_line(nd_surf, x_min, y, x_min + 2, y, ND_THEME_ACCENT_A);
+            qp_line(nd_surf, layer_widget_x, y, layer_widget_x + 2, y, ND_THEME_ACCENT_A);
         }
-        qp_drawimage_recolor(nd_surf, x_min + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, ND_THEME_ACCENT_A, ND_THEME_BG);
+        qp_drawimage_recolor(nd_surf, layer_widget_x + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, ND_THEME_ACCENT_A, ND_THEME_BG);
 
         nd_dirty   = true;
         last_layer = nd_cur_layer;
     }
 
     static uint8_t last_mode = 0;
-    if ((nd_mode != last_mode) || first_run) {
+    if ((nd_cur_mode != last_mode) || first_run) {
         // Print the mode
-        switch (nd_mode) {
+        switch (nd_cur_mode) {
             case _DEF:
                 thsl_widget_set_label(widgets[MODE], "QWERTY  ");
+                thsl_widget_set_icon(widgets[MODE], icons.layout);
+
                 break;
             case _COL:
                 thsl_widget_set_label(widgets[MODE], "COLEMAK ");
+                thsl_widget_set_icon(widgets[MODE], icons.layout);
+
                 break;
             case _GME:
-                thsl_widget_set_label(widgets[MODE], "(GAME)  ");
+                thsl_widget_set_label(widgets[MODE], "GAME    ");
+                thsl_widget_set_icon(widgets[MODE], icons.game);
         }
-        last_mode = nd_mode;
+        last_mode = nd_cur_mode;
     }
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
@@ -246,4 +261,5 @@ void display_render(void) {
         first_run = false;
     }
 }
+
 

@@ -122,7 +122,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 layer_state_t default_layer_state_set_user(layer_state_t state) {
-    nd_mode = get_highest_layer(state);
+    nd_cur_mode = get_highest_layer(state);
     return state;
 }
 

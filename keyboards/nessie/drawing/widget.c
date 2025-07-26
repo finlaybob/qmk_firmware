@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "widget.h"
+#include "theme.h"
 
 static widget_t widget[MAX_WIDGETS];
 static uint8_t  widget_count = 0;
@@ -47,43 +48,74 @@ void thsl_widget_destroy(widget_t *widget) {
 }
 
 void thsl_widget_draw(painter_device_t device, widget_t *widget) {
-    qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, HSV_WHITE, false);
-    // Draw the background rectangle
-    qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, HSV_WHITE, false);
+    if (device == NULL || widget == NULL) {
+        return; // Nothing to draw
+    }
+
+    // Skip if the widget is not dirty
+    if (!widget->dirty) {
+        return;
+    }
+
+    // clear the area where the widget will be drawn
+    qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, ND_THEME_BG, true);
+
+    // Draw the background rectangle if required
+    if (widget->border) {
+        qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, ND_THEME_ACCENT_B, false);
+    }
 
     // Draw the icon on the left side of the widget
     if (widget->icon) {
         uint8_t  pos    = (widget->height / 2) - (widget->icon->height / 2);
         uint16_t icon_x = widget->x + pos;
         uint16_t icon_y = widget->y + pos;
-        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, HSV_BLACK);
+        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, ND_THEME_BG);
     }
 
     if (widget->label) {
-        uint16_t text_x = widget->x + 42;
+        uint16_t text_x = widget->x + (widget->icon ? widget->icon->width + 10 : 10); // Leave space for the icon
         uint16_t text_y = widget->y + (widget->height / 2) - (widget->font->line_height / 2);
-        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, HSV_BLACK);
+        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, ND_THEME_BG);
     }
 
     widget->dirty = false; // Mark the widget as clean after drawing
 }
 
 void thsl_widget_set_label(widget_t *widget, const char *label) {
-    if (widget == NULL || label == NULL) {
+    if (widget == NULL) {
         return;
     }
-
-    if (widget) {
-        widget->label = label;
-    }
+    widget->label = label;
 
     // Mark the widget as dirty for redrawing
     widget->dirty = true;
 
     // If the widget has a fixed size, do not update width
-    if (widget->fixed_size) {
-        return;
-    }
+    // if the label has been set to NULL, do not update width
+    if (widget->fixed_size || label == NULL) return;
+
     // Update width based on text length
-    widget->width = qp_textwidth(widget->font, label) + 42;
+    thsl_widget_set_size(widget, qp_textwidth(widget->font, label) + 44, widget->height);
+}
+
+void thsl_widget_set_icon(widget_t *widget, painter_image_handle_t icon) {
+    if (widget == NULL) return;
+    widget->icon  = icon;
+    widget->dirty = true;
+}
+
+void thsl_widget_set_position(widget_t *widget, uint16_t x, uint16_t y) {
+    // TODO: We need to store the old position to allow clearing the old area as we will not redraw in the same place
+
+    return;
+}
+
+void thsl_widget_set_size(widget_t *widget, uint8_t width, uint16_t height) {
+    if (widget == NULL) return;
+    widget->width  = width;
+    widget->height = height;
+
+    // Mark the widget as dirty for redrawing
+    widget->dirty = true;
 }
