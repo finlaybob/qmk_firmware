@@ -28,6 +28,7 @@ typedef enum {
 #ifdef WPM_ENABLE
     WPM,
 #endif
+    DEVICE,
 
     COUNT
 } widget_id_t;
@@ -101,29 +102,39 @@ void display_startup(void) {
 
     uint8_t next_y_position = 0;
 
-    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, widget_height*2, NULL, "thslkeys Nessie v2", true, font, ND_THEME_FG, false);
+    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, widget_height * 2, NULL, "           Nessie", true, font, ND_THEME_FG, false);
     // move down
     next_y_position += (widget_height*2) + 2;
 
     // move leftmost
     uint8_t column = 0;
-    widgets[MODE] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "QWERTY", true, font, ND_THEME_FG, true);
+    widgets[MODE]  = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "Mode", true, font, ND_THEME_FG, true);
     // don't move down, just move right
-    column += X_MID;
+    column += THIRD;
 
-    widgets[LAYER] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.cog, "Mode", true, font, ND_THEME_FG, true);
+    widgets[LAYER] = thsl_create_widget(column, next_y_position, HALF, widget_height, icons.layer, "Layer", true, font, ND_THEME_FG, true);
     // move leftmost again
     column = 0;
     // move down
     next_y_position += widget_offset;
 
-
-#ifdef DEBUG_MATRIX_SCAN_RATE
-    widgets[MATRIX] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.matrix, "Matrix Scan Rate", true, font, ND_THEME_FG, true);
+#ifdef POINTING_DEVICE_ENABLE
+    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.trackpad, "Trackpad Enabled", true, font, ND_THEME_FG, false);
     next_y_position += widget_offset;
 #endif
+
+#ifdef ENCODER_ENABLE
+    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.encoder, "Encoder Enabled", true, font, ND_THEME_FG, false);
+    next_y_position += widget_offset;
+#endif
+
+#ifdef DEBUG_MATRIX_SCAN_RATE
+    widgets[MATRIX] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.matrix, "Matrix Scan Rate", true, font, ND_THEME_FG, true);
+    next_y_position += widget_offset;
+#endif
+
 #ifdef WPM_ENABLE
-    widgets[WPM] = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.speed, "WPM", true, font, ND_THEME_FG, true);
+    widgets[WPM] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.speed, "WPM", true, font, ND_THEME_FG, true);
     next_y_position += widget_offset;
 #endif
 
@@ -137,7 +148,7 @@ void clear_screen(void) {
 }
 
 void display_render(void) {
-    // REMEMBER to draw as little as possible as few times as possible
+    // REMEMBER, draw as little as possible as few times as possible
 
     static char buf[64];
     static uint32_t last_update = 0;
