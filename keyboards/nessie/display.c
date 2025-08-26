@@ -110,7 +110,7 @@ void display_startup(void) {
     uint8_t column = 0;
     widgets[MODE]  = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "Mode", true, font, ND_THEME_FG, true);
     // don't move down, just move right
-    column += THIRD;
+    column += HALF;
 
     widgets[LAYER] = thsl_create_widget(column, next_y_position, HALF, widget_height, icons.layer, "Layer", true, font, ND_THEME_FG, true);
     // move leftmost again
