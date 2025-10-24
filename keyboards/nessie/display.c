@@ -48,7 +48,7 @@ static uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)]
 
 uint32_t render_callback(uint32_t trigger_time, void *cb_arg) {
     display_render();
-    return 16;
+    return 30;
 }
 
 // Draw the splash screen directly to the LCD
@@ -56,7 +56,7 @@ void draw_splash(void) {
     text = qp_load_image_mem(gfx_splash_text);
     logo = qp_load_image_mem(gfx_splash_logo);
 
-    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, ND_THEME_ACCENT_A, true);
+    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, HSV_WHITE, true);
     qp_drawimage(nd_surf, X_MID - (text->width / 2), 10, text);
     qp_drawimage(nd_surf, X_MID - (logo->width / 2), y_max - logo->height - 2, logo);
     qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
@@ -172,8 +172,6 @@ void display_render(void) {
 
     static uint8_t last_layer = 0;
     if ((nd_cur_layer != last_layer) || first_run) {
-
-
         // clear the area where the layer indicator will be drawn
         qp_rect(nd_surf, layer_widget_x, layer_widget_y, layer_widget_x + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), ND_THEME_BG, true);
         qp_line(nd_surf, layer_widget_x, layer_widget_y + (layer_spacing / 2), layer_widget_x, layer_widget_y + (layer_spacing * 4) + (layer_spacing / 2), ND_THEME_ACCENT_A);
