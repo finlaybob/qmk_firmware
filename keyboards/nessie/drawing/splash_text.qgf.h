@@ -11,4 +11,4 @@
 #include <qp.h>
 
 extern const uint32_t gfx_splash_text_length;
-extern const uint8_t  gfx_splash_text[957];
+extern const uint8_t  gfx_splash_text[1317];

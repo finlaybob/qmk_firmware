@@ -64,7 +64,7 @@
 #    define POINTING_DEVICE_CS_PIN TP_CS_PIN
 
 // Ready pin is optional but not able to be used with inertial cursor
-// #   define POINTING_DEVICE_MOTION_PIN TP_READY_PIN
+#    define POINTING_DEVICE_MOTION_PIN TP_READY_PIN
 
 #    define POINTING_DEVICE_DEBUG
 #    define CIRQUE_PINNACLE_DIAMETER_MM 40

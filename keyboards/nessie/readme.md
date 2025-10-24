@@ -1,10 +1,10 @@
-# Nessie v1.1 [DEV]
+# Nessie RevB
 
 ![nessie](https://i.imgur.com/4jbQzpj.png)
 
 - 58-key semi split, 5 key thumb row
 - 2.2" ILI9341 display
-- Cirque Trackpad OR EC11 encoder
+- Cirque Trackpad / EC11 encoder 
 
 <hr/>
 
@@ -22,6 +22,13 @@ Flashing example for this keyboard:
     Reboot into bootloader, copy .uf2 firmware file to storage device
 
 See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+
+# Selecting components
+
+- To enable the encoder set 'encoder' to 'true' in the keyboard.json
+- To enable the trackpad set 'pointing_device' to 'true' in the keyboard.json
+
+> ⚠️ You cannot enable both
 
 ## Bootloader
 
