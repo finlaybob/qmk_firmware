@@ -19,7 +19,7 @@ static bool bl_last_brtg;
 static uint8_t bl_last_level = 0;
 
 #ifdef POINTING_DEVICE_ENABLE
-static int sensitivity_divisor = 3;
+static int tp_sens = 3;
 #endif
 
 
@@ -75,12 +75,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 #ifdef POINTING_DEVICE_ENABLE
         case KC_HUP:
             if (record->event.pressed) {
-                sensitivity_divisor++;
+                tp_sens++;
             }
             return true;
         case KC_HDN:
             if (record->event.pressed) {
-                sensitivity_divisor--;
+                tp_sens--;
             }
             return true;
 #endif // POINTING_DEVICE_ENABLE
@@ -110,11 +110,11 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mr) {
     int16_t dy = mr.y;
 
     if (dx != 0) {
-        dx = dx / sensitivity_divisor;
+        dx = dx / tp_sens;
     }
 
     if (dy != 0) {
-        dy = dy / sensitivity_divisor;
+        dy = dy / tp_sens;
     }
 
     mr.x = (int8_t)dx;
