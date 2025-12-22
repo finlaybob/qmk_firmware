@@ -17,7 +17,10 @@ static bool backlight_active = true;
 static bool bl_last_state;
 static bool bl_last_brtg;
 static uint8_t bl_last_level = 0;
+
+#ifdef POINTING_DEVICE_ENABLE
 static int sensitivity_divisor = 3;
+#endif
 
 
 void keyboard_post_init_kb(void) {
@@ -69,6 +72,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING(CKCP);
             }
             return false;
+#ifdef POINTING_DEVICE_ENABLE
         case KC_HUP:
             if (record->event.pressed) {
                 sensitivity_divisor++;
@@ -79,6 +83,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 sensitivity_divisor--;
             }
             return true;
+#endif // POINTING_DEVICE_ENABLE
     }
 
     // If jiggler is currently running, stop when any key is pressed.
@@ -96,6 +101,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     }
     return process_record_user(keycode, record);
 }
+
+#ifdef POINTING_DEVICE_ENABLE
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mr) {
 
@@ -115,6 +122,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mr) {
 
     return mr;
 }
+#endif
 
 void housekeeping_task_kb(void) {
 #ifdef BACKLIGHT_ENABLE
