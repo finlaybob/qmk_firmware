@@ -1,6 +1,8 @@
 // Copyright © 2025 Neil Finlay / thslkeys <finbsp@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdint.h>
+#include "report.h"
 #include QMK_KEYBOARD_H
 
 
@@ -15,6 +17,8 @@ static bool backlight_active = true;
 static bool bl_last_state;
 static bool bl_last_brtg;
 static uint8_t bl_last_level = 0;
+static int sensitivity_divisor = 3;
+
 
 void keyboard_post_init_kb(void) {
     display_startup();
@@ -66,20 +70,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         case KC_HUP:
-            // if (record->event.pressed) {
-            //     nd_hue   = (nd_hue + HUE_STEP) % 256; // Cycle hue
-            //     nd_dirty = true;
-            // }
+            if (record->event.pressed) {
+                sensitivity_divisor++;
+            }
             return true;
         case KC_HDN:
-            // if (record->event.pressed) {
-            //     if (nd_hue - HUE_STEP <= 0) {
-            //         nd_hue = 256 - nd_hue - HUE_STEP;
-            //     } else {
-            //         nd_hue = (nd_hue - HUE_STEP);
-            //     }
-            //     nd_dirty = true;
-            // }
+            if (record->event.pressed) {
+                sensitivity_divisor--;
+            }
             return true;
     }
 
@@ -99,6 +97,24 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     return process_record_user(keycode, record);
 }
 
+report_mouse_t pointing_device_task_kb(report_mouse_t mr) {
+
+    int16_t dx = mr.x;
+    int16_t dy = mr.y;
+
+    if (dx != 0) {
+        dx = dx / sensitivity_divisor;
+    }
+
+    if (dy != 0) {
+        dy = dy / sensitivity_divisor;
+    }
+
+    mr.x = (int8_t)dx;
+    mr.y = (int8_t)dy;
+
+    return mr;
+}
 
 void housekeeping_task_kb(void) {
 #ifdef BACKLIGHT_ENABLE
