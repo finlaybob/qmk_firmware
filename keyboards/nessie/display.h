@@ -1,4 +1,4 @@
-// Copyright © 2025 Neil Finlay / thslkeys <finbsp@gmail.com>
+// Copyright © 2025 Neil Finlay - thslkeys.uk <finbsp@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -15,7 +15,7 @@
 #include "drawing/dimensions.h"
 #include "fonts/default.qff.h"
 
-#include "drawing/theme.h"
+#include "drawing/default_theme.h"
 
 extern painter_device_t      nd_lcd;
 extern painter_device_t      nd_surf;

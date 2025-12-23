@@ -1,8 +1,8 @@
-// Copyright © 2025 Neil Finlay / thslkeys
+// Copyright © 2025 Neil Finlay - thslkeys.uk
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "widget.h"
-#include "theme.h"
+#include "default_theme.h"
 
 static widget_t widget[MAX_WIDGETS];
 static uint8_t  widget_count = 0;
@@ -58,11 +58,11 @@ void thsl_widget_draw(painter_device_t device, widget_t *widget) {
     }
 
     // clear the area where the widget will be drawn
-    qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, ND_THEME_BG, true);
+    qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, UI_PANEL, true);
 
     // Draw the background rectangle if required
     if (widget->border) {
-        qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, ND_THEME_ACCENT_B, false);
+        qp_rect(device, widget->x, widget->y, widget->x + widget->width, widget->y + widget->height, UI_ACCENT, false);
     }
 
     // Draw the icon on the left side of the widget
@@ -70,13 +70,13 @@ void thsl_widget_draw(painter_device_t device, widget_t *widget) {
         uint8_t  pos    = (widget->height / 2) - (widget->icon->height / 2);
         uint16_t icon_x = widget->x + pos;
         uint16_t icon_y = widget->y + pos;
-        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, ND_THEME_BG);
+        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, UI_BG);
     }
 
     if (widget->label) {
         uint16_t text_x = widget->x + (widget->icon ? widget->icon->width + 10 : 10); // Leave space for the icon
         uint16_t text_y = widget->y + (widget->height / 2) - (widget->font->line_height / 2);
-        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, ND_THEME_BG);
+        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, UI_BG);
     }
 
     widget->dirty = false; // Mark the widget as clean after drawing

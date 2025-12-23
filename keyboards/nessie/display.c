@@ -1,4 +1,4 @@
-// Copyright © 2025 Neil Finlay / thslkeys <finbsp@gmail.com>
+// Copyright © 2025 Neil Finlay - thslkeys.uk <finbsp@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "display.h"
@@ -102,39 +102,39 @@ void display_startup(void) {
 
     uint8_t next_y_position = 0;
 
-    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, widget_height * 2, NULL, "           Nessie", true, font, ND_THEME_FG, false);
+    widgets[TITLE] = thsl_create_widget(0, next_y_position + 1, x_max, widget_height * 2, NULL, "           Nessie", true, font, UI_TEXT, false);
     // move down
     next_y_position += (widget_height*2) + 2;
 
     // move leftmost
     uint8_t column = 0;
-    widgets[MODE]  = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "Mode", true, font, ND_THEME_FG, true);
+    widgets[MODE]  = thsl_create_widget(column, next_y_position, X_MID, widget_height, icons.layout, "Mode", true, font, UI_TEXT, true);
     // don't move down, just move right
     column += HALF;
 
-    widgets[LAYER] = thsl_create_widget(column, next_y_position, HALF, widget_height, icons.layer, "Layer", true, font, ND_THEME_FG, true);
+    widgets[LAYER] = thsl_create_widget(column, next_y_position, HALF, widget_height, icons.layer, "Layer", true, font, UI_TEXT, true);
     // move leftmost again
     column = 0;
     // move down
     next_y_position += widget_offset;
 
 #ifdef POINTING_DEVICE_ENABLE
-    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.trackpad, "Trackpad Enabled", true, font, ND_THEME_FG, false);
+    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.trackpad, "Trackpad Enabled", true, font, UI_TEXT_HI, false);
     next_y_position += widget_offset;
 #endif
 
 #ifdef ENCODER_ENABLE
-    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.encoder, "Encoder Enabled", true, font, ND_THEME_FG, false);
+    widgets[DEVICE] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.encoder, "Encoder Enabled", true, font, UI_TEXT, false);
     next_y_position += widget_offset;
 #endif
 
 #ifdef DEBUG_MATRIX_SCAN_RATE
-    widgets[MATRIX] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.matrix, "Matrix Scan Rate", true, font, ND_THEME_FG, true);
+    widgets[MATRIX] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.matrix, "Matrix Scan Rate", true, font, UI_TEXT, true);
     next_y_position += widget_offset;
 #endif
 
 #ifdef WPM_ENABLE
-    widgets[WPM] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.speed, "WPM", true, font, ND_THEME_FG, true);
+    widgets[WPM] = thsl_create_widget(column, next_y_position, THREE_QUARTERS, widget_height, icons.speed, "WPM", true, font, UI_TOGGLE, true);
     next_y_position += widget_offset;
 #endif
 
@@ -143,7 +143,7 @@ void display_startup(void) {
 }
 
 void clear_screen(void) {
-    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, ND_THEME_BG, true);
+    qp_rect(nd_surf, 0, 0, WIDTH, HEIGHT, UI_BG, true);
     nd_dirty = true;
 }
 
@@ -173,8 +173,8 @@ void display_render(void) {
     static uint8_t last_layer = 0;
     if ((nd_cur_layer != last_layer) || first_run) {
         // clear the area where the layer indicator will be drawn
-        qp_rect(nd_surf, layer_widget_x, layer_widget_y, layer_widget_x + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), ND_THEME_BG, true);
-        qp_line(nd_surf, layer_widget_x, layer_widget_y + (layer_spacing / 2), layer_widget_x, layer_widget_y + (layer_spacing * 4) + (layer_spacing / 2), ND_THEME_ACCENT_A);
+        qp_rect(nd_surf, layer_widget_x, layer_widget_y, layer_widget_x + layer_spacing + 2, layer_widget_y + (layer_spacing * 5), UI_BG, true);
+        qp_line(nd_surf, layer_widget_x, layer_widget_y + (layer_spacing / 2), layer_widget_x, layer_widget_y + (layer_spacing * 4) + (layer_spacing / 2), UI_ACCENT);
 
         static uint8_t position = 0;
 
@@ -205,9 +205,9 @@ void display_render(void) {
         // draw the layer notches
         for (uint8_t i = 0; i < 5; i++) {
             uint8_t y = layer_widget_y + (i * layer_spacing) + (layer_spacing / 2);
-            qp_line(nd_surf, layer_widget_x, y, layer_widget_x + 2, y, ND_THEME_ACCENT_A);
+            qp_line(nd_surf, layer_widget_x, y, layer_widget_x + 2, y, UI_ACCENT);
         }
-        qp_drawimage_recolor(nd_surf, layer_widget_x + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, ND_THEME_ACCENT_A, ND_THEME_BG);
+        qp_drawimage_recolor(nd_surf, layer_widget_x + 5, layer_widget_y + (position * layer_spacing), icons.arrow_left, UI_ADV, UI_BG);
 
         nd_dirty   = true;
         last_layer = nd_cur_layer;
@@ -261,7 +261,7 @@ void display_render(void) {
 
     // Swap buffers
     if (nd_dirty || first_run) {
-        qp_rect(nd_surf, 0, 0, x_max, 319, ND_THEME_FG, false);
+        qp_rect(nd_surf, 0, 0, x_max, 319, UI_TEXT_HI, false);
         qp_surface_draw(nd_surf, nd_lcd, 0, 0, false);
         nd_dirty = false;
     }
