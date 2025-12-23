@@ -70,13 +70,15 @@ void thsl_widget_draw(painter_device_t device, widget_t *widget) {
         uint8_t  pos    = (widget->height / 2) - (widget->icon->height / 2);
         uint16_t icon_x = widget->x + pos;
         uint16_t icon_y = widget->y + pos;
-        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, UI_BG);
+        // Use panel colour for the icon background so any transparency matches the widget body
+        qp_drawimage_recolor(device, icon_x, icon_y, widget->icon, widget->hue, widget->sat, widget->val, UI_PANEL);
     }
 
     if (widget->label) {
         uint16_t text_x = widget->x + (widget->icon ? widget->icon->width + 10 : 10); // Leave space for the icon
         uint16_t text_y = widget->y + (widget->height / 2) - (widget->font->line_height / 2);
-        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, UI_BG);
+        // Match text background to the panel fill to avoid a halo on lighter panels
+        qp_drawtext_recolor(device, text_x, text_y, widget->font, widget->label, widget->hue, widget->sat, widget->val, UI_PANEL);
     }
 
     widget->dirty = false; // Mark the widget as clean after drawing
