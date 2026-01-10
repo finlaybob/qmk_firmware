@@ -103,7 +103,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef POINTING_DEVICE_ENABLE
-
 report_mouse_t pointing_device_task_kb(report_mouse_t mr) {
 
     int16_t dx = mr.x;
